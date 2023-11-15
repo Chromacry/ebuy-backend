@@ -1,8 +1,13 @@
 // index.mjs
 import express from 'express';
+import dotenv from 'dotenv';
+
+
+dotenv.config({ path: `.env.local`, override: true });
+
 
 const app = express();
-const port = 3000;
+const port = process.env.SERVER_PORT || 8080;
 
 // Define a basic route
 app.get('/', (req, res) => {
