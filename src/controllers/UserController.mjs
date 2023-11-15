@@ -1,23 +1,23 @@
 import express from "express";
 import mysql from "mysql2";
-import DBConfig from "../utils/DBConfig.mjs";
+import dbConfig from "../utils/DBConfig.mjs";
 import bcrypt from "bcrypt";
 
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
-  const DBConnection = mysql.createConnection(DBConfig);
+  const dbConnection = mysql.createConnection(dbConfig);
 
   try {
-    DBConnection.connect();
+    dbConnection.connect();
 
     // Check if the email is already registered
     const emailCheck = await new Promise((resolve, reject) => {
-      DBConnection.query(
+      dbConnection.query(
         "SELECT email FROM users WHERE email = ?",
         [email],
         (err, result) => {
           if (err) {
-            reject({ status: "error", message: "Database error" });
+            reject({ message: "Database error", status: 500 });
           } else {
             resolve(result[0]);
           }
@@ -27,14 +27,14 @@ export const register = async (req, res) => {
 
     if (emailCheck) {
       return res.json({
-        status: "error",
         message: "Email has already been registered",
+        status: 400,
       });
     } else {
       // Insert new user
       const EncryptedPassword = await bcrypt.hash(password, 10);
       await new Promise((resolve, reject) => {
-        DBConnection.query(
+        dbConnection.query(
           "INSERT INTO users SET ?",
           {
             username: username,
@@ -43,7 +43,7 @@ export const register = async (req, res) => {
           },
           (error, results) => {
             if (error) {
-              reject({ status: "error", message: "Database error" });
+              reject({ message: "Database error", status: 500 });
             } else {
               resolve(results);
             }
@@ -52,17 +52,17 @@ export const register = async (req, res) => {
       });
 
       return res.json({
-        status: "success",
         message: "Registration successful",
+        status: 200,
       });
     }
   } catch (error) {
     console.error("Error during registration:", error);
-    return res.status(500).json({
-      status: "error",
+    return res.json({
       message: "Internal server error",
+      status: 500,
     });
   } finally {
-    DBConnection.end();
+    dbConnection.end();
   }
 };
