@@ -2,15 +2,16 @@ import express from "express";
 import mysql from "mysql2";
 import dbConfig from "../utils/DBConfig.mjs";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config({ path: `.env.local`, override: true });
 
 export const register = async (req, res) => {
-  const { username, email, password } = req.body;
   const dbConnection = mysql.createConnection(dbConfig);
-
+  const { username, email, password } = req.body;
   try {
     dbConnection.connect();
-
-    // Check if the email is already registered
     const emailCheck = await new Promise((resolve, reject) => {
       dbConnection.query(
         "SELECT email FROM users WHERE email = ?",
@@ -31,7 +32,6 @@ export const register = async (req, res) => {
         status: 400,
       });
     } else {
-      // Insert new user
       const EncryptedPassword = await bcrypt.hash(password, 10);
       await new Promise((resolve, reject) => {
         dbConnection.query(
@@ -50,7 +50,6 @@ export const register = async (req, res) => {
           }
         );
       });
-
       return res.json({
         message: "Registration successful",
         status: 200,
@@ -66,3 +65,74 @@ export const register = async (req, res) => {
     dbConnection.end();
   }
 };
+
+export const login = async (req, res) => {
+  const dbConnection = mysql.createConnection(dbConfig);
+  const { email, password } = req.body;
+  dbConnection.connect();
+
+  try {
+    const userResult = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "SELECT * FROM users WHERE email = ?",
+        [email],
+        (err, result) => {
+          if (err) {
+            reject({ status: 500, message: "Database error" });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+
+    if (
+      !userResult.length ||
+      !(await bcrypt.compare(password, userResult[0].password))
+    ) {
+      return res.json({
+        status: 400,
+        message: "Incorrect Email or Password",
+      });
+    } else {
+      let userToken = crypto.randomBytes(64).toString("hex");
+      await new Promise((resolve, reject) => {
+        dbConnection.query(
+          "UPDATE users SET token = ? WHERE email = ?",
+          [userToken, email],
+          (err, result) => {
+            if (err) {
+              reject({ status: 500, message: "Database error" });
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      });
+
+      const token = jwt.sign(
+        { id: userResult[0].id, token: userToken },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRES,
+        }
+      );
+
+      return res.json({
+        message: "Login successful!",
+        status: 200,
+        token: token, // Include the token in the response
+      });
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error",
+    });
+  } finally {
+    dbConnection.end();
+  }
+};
+
+
