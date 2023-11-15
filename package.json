@@ -1,13 +1,13 @@
 {
   "name": "ebuy-backend",
   "version": "1.0.0",
-  "module": "module",
+  "type": "module",
   "description": "",
   "main": "src/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1", 
     "start": "node server",
-    "dev": "nodemon server"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
