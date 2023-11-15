@@ -135,4 +135,59 @@ export const login = async (req, res) => {
   }
 };
 
+export const getUser = async (req, res) => {
+  const storedToken = req.headers.token; // Retrieve token from request headers
 
+  if (!storedToken) {
+    return res.json({
+      status: 401,
+      message: "Unauthorized: Token not found in request headers",
+    });
+  }
+
+  const dbConnection = mysql.createConnection(dbConfig);
+
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    console.log("Decoded id: ", decoded.id);
+    console.log("Decoded token: ", decoded.token);
+
+    dbConnection.connect();
+
+    dbConnection.query(
+      "SELECT username, email, profile_image, id FROM users WHERE id = ? AND token = ?",
+      [decoded.id, decoded.token], // Use the stored token in the query
+      async (Err, result) => {
+        if (Err) {
+          console.error("Error querying database:", Err);
+          return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+          });
+        }
+
+        if (!result.length) {
+          return res.json({
+            status: 401,
+            message: "Unauthorized: Invalid token or user not found",
+          });
+        }
+
+        return res.json({
+          username: result[0].username,
+          profile_image: result[0].profile_image,
+          email: result[0].email,
+          id: result[0].id,
+        });
+      }
+    );
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return res.status(401).json({
+      status: 401,
+      message: "Unauthorized: Invalid token",
+    });
+  } finally {
+    dbConnection.end();
+  }
+};
