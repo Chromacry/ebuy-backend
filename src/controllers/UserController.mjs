@@ -7,7 +7,6 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config({ path: `.env.local`, override: true });
 
-
 export const register = async (req, res) => {
   const dbConnection = mysql.createConnection(dbConfig);
   const { username, email, password } = req.body;
@@ -67,11 +66,11 @@ export const register = async (req, res) => {
   }
 };
 
-
 export const login = async (req, res) => {
   const dbConnection = mysql.createConnection(dbConfig);
   const { email, password } = req.body;
   dbConnection.connect();
+
   try {
     const userResult = await new Promise((resolve, reject) => {
       dbConnection.query(
@@ -86,6 +85,7 @@ export const login = async (req, res) => {
         }
       );
     });
+
     if (
       !userResult.length ||
       !(await bcrypt.compare(password, userResult[0].password))
@@ -95,7 +95,6 @@ export const login = async (req, res) => {
         message: "Incorrect Email or Password",
       });
     } else {
-      // Generate a new token for the user
       let userToken = crypto.randomBytes(64).toString("hex");
       await new Promise((resolve, reject) => {
         dbConnection.query(
@@ -111,7 +110,6 @@ export const login = async (req, res) => {
         );
       });
 
-      // Create a JWT token and set it as a cookie
       const token = jwt.sign(
         { id: userResult[0].id, token: userToken },
         process.env.JWT_SECRET,
@@ -119,16 +117,12 @@ export const login = async (req, res) => {
           expiresIn: process.env.JWT_EXPIRES,
         }
       );
-      console.log("jwt secret: ", process.env.JWT_EXPIRES);
-      const cookieOptions = {
-        expiresIn: new Date(process.env.JWT_EXPIRES),
-        httpOnly: false,
-      };
-      console.log("token: ", token);
-      console.log("cookieOptions: ", cookieOptions);
-      return res
-        .cookie("userData", token, cookieOptions)
-        .json({ message: "Login successful!", status: 200 });
+
+      return res.json({
+        message: "Login successful!",
+        status: 200,
+        token: token, // Include the token in the response
+      });
     }
   } catch (error) {
     console.error("Error during login:", error);
@@ -140,6 +134,5 @@ export const login = async (req, res) => {
     dbConnection.end();
   }
 };
-
 
 
