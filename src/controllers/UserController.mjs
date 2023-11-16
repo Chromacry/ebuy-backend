@@ -12,6 +12,23 @@ export const register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Validation checks
+    if (!username || !email || !password) {
+      return res.json({
+        message: "Username, email, and password are required",
+        status: 400,
+      });
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.json({
+        message: "Invalid email format",
+        status: 400,
+      });
+    }
+
     dbConnection.connect();
 
     const emailCheck = await new Promise((resolve, reject) => {
@@ -73,6 +90,7 @@ export const register = async (req, res) => {
     dbConnection.end();
   }
 };
+
 
 
 export const login = async (req, res) => {
