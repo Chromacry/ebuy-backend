@@ -27,7 +27,6 @@ export const register = async (req, res) => {
         }
       );
     });
-
     if (emailCheck) {
       return res.json({
         message: "Email has already been registered",
@@ -274,4 +273,3 @@ export const updateProfileImage = async (req, res) => {
     );
     dbConnection.end();
   };
-  
