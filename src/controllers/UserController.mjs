@@ -10,8 +10,10 @@ dotenv.config({ path: `.env.local`, override: true });
 export const register = async (req, res) => {
   const dbConnection = mysql.createConnection(dbConfig);
   const { username, email, password } = req.body;
+
   try {
     dbConnection.connect();
+
     const emailCheck = await new Promise((resolve, reject) => {
       dbConnection.query(
         "SELECT email FROM users WHERE email = ?",
@@ -33,6 +35,10 @@ export const register = async (req, res) => {
       });
     } else {
       const EncryptedPassword = await bcrypt.hash(password, 10);
+
+      // Get the current date and time
+      const currentDate = new Date().toLocaleDateString("en-GB");
+
       await new Promise((resolve, reject) => {
         dbConnection.query(
           "INSERT INTO users SET ?",
@@ -40,6 +46,7 @@ export const register = async (req, res) => {
             username: username,
             email: email,
             password: EncryptedPassword,
+            created_time: currentDate, // Add the created_time field with the formatted date
           },
           (error, results) => {
             if (error) {
@@ -50,6 +57,7 @@ export const register = async (req, res) => {
           }
         );
       });
+
       return res.json({
         message: "Registration successful",
         status: 200,
@@ -178,7 +186,8 @@ export const getUser = async (req, res) => {
           profile_image: result[0].profile_image,
           email: result[0].email,
           id: result[0].id,
-          created_time: result[0].created_time
+          created_time: result[0].created_time,
+
         });
       }
     );
@@ -192,3 +201,77 @@ export const getUser = async (req, res) => {
     dbConnection.end();
   }
 };
+
+export const passwordReset = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+  let currentPassword = req.body.currentPassword;
+  let newPassword = req.body.newPassword;
+  const dbConnection = mysql.createConnection(dbConfig);
+  dbConnection.connect();
+  dbConnection.query(
+    "SELECT * FROM users WHERE id = ? AND token = ?",
+    [decoded.id, decoded.token],
+    async (Err, result) => {
+      if (Err) throw Err;
+      if (
+        !result.length ||
+        !(await bcrypt.compare(currentPassword, result[0].password))
+      )
+        return res.json({ message: "Incorrect Entries", status: 400 });
+      else {
+          const dbConnection = mysql.createConnection(dbConfig);
+          dbConnection.connect();
+          const hashed_password = await bcrypt.hash(newPassword, 10);
+          dbConnection.query(
+            "UPDATE users SET password = ? WHERE id = ?",
+            [hashed_password, decoded.id],
+            async (err, result) => {
+              if (err) throw err;
+            }
+          );
+          dbConnection.end();
+
+          return res.json({
+            status: 200,
+            Message: "Password Reset Successful",
+          });
+        
+      }
+    }
+  );
+  dbConnection.end();
+};
+
+export const updateUsername = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    let username = req.body.username;
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    dbConnection.query(
+      "UPDATE users SET? WHERE id = ?",[{username},decoded.id],
+      async (err, result) => {
+        if (err) throw res.json({ message: "Username update error!", status: 400 });
+        if (result) return res.json({ message: "Username update successful", status: 200 });
+      }
+    );
+    dbConnection.end();
+};
+
+export const updateProfileImage = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    let profile_image = req.body.profileImg;
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    dbConnection.query(
+      "UPDATE users SET? WHERE id = ?",[{profile_image},decoded.id],
+      async (err, result) => {
+        if (err) throw res.json({ message: "Profile image upload error!", status: 500 });
+        if (result) return res.json({ message: "Profile image upload successful! ", status: 200 });
+      }
+    );
+    dbConnection.end();
+  };
+  
