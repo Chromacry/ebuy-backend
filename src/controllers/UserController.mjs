@@ -92,7 +92,6 @@ export const register = async (req, res) => {
 };
 
 
-
 export const login = async (req, res) => {
   const dbConnection = mysql.createConnection(dbConfig);
   const { email, password } = req.body;
@@ -182,7 +181,7 @@ export const getUser = async (req, res) => {
     dbConnection.connect();
 
     dbConnection.query(
-      "SELECT username, email, profile_image, id FROM users WHERE id = ? AND token = ?",
+      "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
       [decoded.id, decoded.token], // Use the stored token in the query
       async (Err, result) => {
         if (Err) {
@@ -205,6 +204,8 @@ export const getUser = async (req, res) => {
           profile_image: result[0].profile_image,
           email: result[0].email,
           id: result[0].id,
+          created_time: result[0].created_time,
+
         });
       }
     );
@@ -270,13 +271,11 @@ export const updateUsername = async (req, res) => {
       "UPDATE users SET? WHERE id = ?",[{username},decoded.id],
       async (err, result) => {
         if (err) throw res.json({ message: "Username update error!", status: 400 });
-        if (result) return res.json({ message: "Username update successful!", status: 200 });
+        if (result) return res.json({ message: "Username update successful", status: 200 });
       }
     );
     dbConnection.end();
 };
-
-
 
 export const updateProfileImage = async (req, res) => {
   const storedToken = req.headers.token;
@@ -288,9 +287,23 @@ export const updateProfileImage = async (req, res) => {
       "UPDATE users SET? WHERE id = ?",[{profile_image},decoded.id],
       async (err, result) => {
         if (err) throw res.json({ message: "Profile image upload error!", status: 500 });
-        if (result) return res.json({ message: "Profile image upload successful!", status: 200 });
+        if (result) return res.json({ message: "Profile image upload successful! ", status: 200 });
       }
     );
     dbConnection.end();
-  };
+};
   
+export const deleteAccount = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+  const dbConnection = mysql.createConnection(dbConfig);
+  dbConnection.connect();
+  dbConnection.query(
+    "DELETE FROM users WHERE id = ? AND token = ?",[decoded.id, decoded.token],
+    async (err, result) => {
+      if (err) throw res.json({ message: "Internal Server Error!", status: 500 });
+      if (result) return res.json({ message: "Account Deleted Successfully!", status: 200 });
+    }
+  );
+  dbConnection.end();
+};
