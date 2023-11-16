@@ -25,7 +25,6 @@ export const register = async (req, res) => {
         }
       );
     });
-
     if (emailCheck) {
       return res.json({
         message: "Email has already been registered",
@@ -242,9 +241,12 @@ export const updateUsername = async (req, res) => {
     dbConnection.query(
       "UPDATE users SET? WHERE id = ?",[{username},decoded.id],
       async (err, result) => {
-        if (err) throw res.json({ message: "updateUsername Error", status: 400 });
-        if (result) return res.json({ message: "updateUsername Success", status: 200 });
+        if (err) throw res.json({ message: "Username update error", status: 400 });
+        if (result) return res.json({ message: "Username update successful", status: 200 });
       }
     );
     dbConnection.end();
-  };
+};
+
+
+
