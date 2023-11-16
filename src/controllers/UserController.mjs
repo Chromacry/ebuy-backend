@@ -273,5 +273,19 @@ export const updateProfileImage = async (req, res) => {
       }
     );
     dbConnection.end();
-  };
+};
   
+export const deleteAccount = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+  const dbConnection = mysql.createConnection(dbConfig);
+  dbConnection.connect();
+  dbConnection.query(
+    "DELETE FROM users WHERE id = ? AND token = ?",[decoded.id, decoded.token],
+    async (err, result) => {
+      if (err) throw res.json({ message: "Internal Server Error!", status: 500 });
+      if (result) return res.json({ message: "Account Deleted Successfully!", status: 200 });
+    }
+  );
+  dbConnection.end();
+};
