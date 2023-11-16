@@ -191,3 +191,44 @@ export const getUser = async (req, res) => {
     dbConnection.end();
   }
 };
+
+export const passwordReset = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+  let currentPassword = req.body.currentPassword;
+  let newPassword = req.body.newPassword;
+  const dbConnection = mysql.createConnection(dbConfig);
+  dbConnection.connect();
+  dbConnection.query(
+    "SELECT * FROM users WHERE id = ? AND token = ?",
+    [decoded.id, decoded.token],
+    async (Err, result) => {
+      if (Err) throw Err;
+      if (
+        !result.length ||
+        !(await bcrypt.compare(currentPassword, result[0].password))
+      )
+        return res.json({ message: "Incorrect Entries", status: 400 });
+      else {
+          const dbConnection = mysql.createConnection(dbConfig);
+          dbConnection.connect();
+          const hashed_password = await bcrypt.hash(newPassword, 10);
+          dbConnection.query(
+            "UPDATE users SET password = ? WHERE id = ?",
+            [hashed_password, decoded.id],
+            async (err, result) => {
+              if (err) throw err;
+            }
+          );
+          dbConnection.end();
+
+          return res.json({
+            status: 200,
+            Message: "Password Reset Successful",
+          });
+        
+      }
+    }
+  );
+  dbConnection.end();
+};
