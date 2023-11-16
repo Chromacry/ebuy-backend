@@ -241,8 +241,8 @@ export const updateUsername = async (req, res) => {
     dbConnection.query(
       "UPDATE users SET? WHERE id = ?",[{username},decoded.id],
       async (err, result) => {
-        if (err) throw res.json({ message: "Username update error", status: 400 });
-        if (result) return res.json({ message: "Username update successful", status: 200 });
+        if (err) throw res.json({ message: "Username update error!", status: 400 });
+        if (result) return res.json({ message: "Username update successful!", status: 200 });
       }
     );
     dbConnection.end();
@@ -250,3 +250,19 @@ export const updateUsername = async (req, res) => {
 
 
 
+export const updateProfileImage = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    let profile_image = req.body.profileImg;
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    dbConnection.query(
+      "UPDATE users SET? WHERE id = ?",[{profile_image},decoded.id],
+      async (err, result) => {
+        if (err) throw res.json({ message: "Profile image upload error!", status: 500 });
+        if (result) return res.json({ message: "Profile image upload successful! ", status: 200 });
+      }
+    );
+    dbConnection.end();
+  };
+  
