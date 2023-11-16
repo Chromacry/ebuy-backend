@@ -6,6 +6,6 @@ router.post("/add", register);
 router.post("/login", login);
 router.get("/getUser", getUser);
 router.post("/passwordReset", passwordReset);
-router.post("/updateUsername", updateUsername)
+router.put("/updateUsername", updateUsername)
 
 export default router;
