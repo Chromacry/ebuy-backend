@@ -155,7 +155,7 @@ export const getUser = async (req, res) => {
     dbConnection.connect();
 
     dbConnection.query(
-      "SELECT username, email, profile_image, id FROM users WHERE id = ? AND token = ?",
+      "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
       [decoded.id, decoded.token], // Use the stored token in the query
       async (Err, result) => {
         if (Err) {
@@ -178,6 +178,7 @@ export const getUser = async (req, res) => {
           profile_image: result[0].profile_image,
           email: result[0].email,
           id: result[0].id,
+          created_time: result[0].created_time
         });
       }
     );
