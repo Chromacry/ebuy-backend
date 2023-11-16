@@ -25,7 +25,6 @@ export const register = async (req, res) => {
         }
       );
     });
-
     if (emailCheck) {
       return res.json({
         message: "Email has already been registered",
@@ -232,3 +231,22 @@ export const passwordReset = async (req, res) => {
   );
   dbConnection.end();
 };
+
+export const updateUsername = async (req, res) => {
+  const storedToken = req.headers.token;
+  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    let username = req.body.username;
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    dbConnection.query(
+      "UPDATE users SET? WHERE id = ?",[{username},decoded.id],
+      async (err, result) => {
+        if (err) throw res.json({ message: "Username update error", status: 400 });
+        if (result) return res.json({ message: "Username update successful", status: 200 });
+      }
+    );
+    dbConnection.end();
+};
+
+
+
