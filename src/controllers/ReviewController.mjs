@@ -34,3 +34,31 @@ export const addReview = (req, res) => {
     });
   }
 };
+export const updateReview = (req, res) => {
+  try {
+    const model = new Review(
+      req.body.id,
+      req.body.content,
+      req.body.rating,
+      null,
+      null,
+      null,
+      req.body.review_image
+    );
+    console.log(model);
+    reviewDao.updateReview(model, (error, result) => {
+      if (error) throw new Error(error);
+      res.json({
+        message: "Successfully updated Review!",
+        data: result,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
