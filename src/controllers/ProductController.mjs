@@ -7,7 +7,6 @@ export const getAllProducts = (req, res) => {
   }
   try {
     const model = new Product();
-    
     productDao.getAllProducts(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({

@@ -13,6 +13,7 @@ export class ReviewDao {
     dbConnection.query(sql,[model.getContent(),model.getRating(),model.getUserId(),model.getProductId(),model.getCreatedTime(),model.getReviewImage()],callback);
     dbConnection.end();
   }
+  
   updateReview(model,callback)
   {
     const dbConnection = mysql.createConnection(dbConfig);
@@ -21,4 +22,13 @@ export class ReviewDao {
     dbConnection.query(sql,[model.getContent(), model.getRating(), model.getReviewImage(),model.getId()],callback);
     dbConnection.end();
   }
+  
+  getProductReviews(model,callback){
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `SELECT * FROM ${dbTableName} WHERE product_id = ?`
+    dbConnection.query(sql,[model.getProductId()],callback);
+    dbConnection.end();
+  }
+  
 }
