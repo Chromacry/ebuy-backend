@@ -31,4 +31,11 @@ export class ReviewDao {
     dbConnection.end();
   }
   
+  deleteReview(model,callback){
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `DELETE FROM ${dbTableName} WHERE id = ?`
+    dbConnection.query(sql,[model.getId()],callback);
+    dbConnection.end();
+  }
 }

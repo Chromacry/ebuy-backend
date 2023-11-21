@@ -88,3 +88,25 @@ export const updateReview = (req, res) => {
     });
   }
 };
+
+
+export const deleteReview = (req, res) => {
+  try {
+    const model = new Review();
+    model.setId(req.params.id);
+    reviewDao.deleteReview(model, (error, result) => {
+      if (error) throw new Error(error);
+      res.json({
+        message: "Successfully deleted Review!",
+        data: result,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
