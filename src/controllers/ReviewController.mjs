@@ -24,7 +24,7 @@ export const addReview = (req, res) => {
     reviewDao.addReview(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
-        message: "Successfully added Review!",
+        message: "Review added successfully!",
         data: result,
         status: STATUS_CODES.SUCCESS_CODE,
       });
@@ -46,7 +46,7 @@ export const getProductReviews = (req, res) => {
     reviewDao.getProductReviews(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
-        message: "Successfully retrieved reviews!",
+        message: "Review retrieved successfully!",
         data: result,
         status: STATUS_CODES.SUCCESS_CODE,
       });
@@ -75,7 +75,7 @@ export const updateReview = (req, res) => {
     reviewDao.updateReview(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
-        message: "Successfully updated Review!",
+        message: "Review updated successfully!",
         data: result,
         status: STATUS_CODES.SUCCESS_CODE,
       });
@@ -97,7 +97,7 @@ export const deleteReview = (req, res) => {
     reviewDao.deleteReview(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
-        message: "Successfully deleted Review!",
+        message: "Review successfully deleted!",
         data: result,
         status: STATUS_CODES.SUCCESS_CODE,
       });
