@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { deleteAccount, getUser, login, passwordReset, register, updateProfileImage, updateUsername } from "../controllers/UserController.mjs";
+
 const router = Router();
 
 router.post("/add", register);

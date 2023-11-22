@@ -291,7 +291,7 @@ export const passwordReset = async (req, res) => {
   );
   dbConnection.end();
 };
-
+  
 export const updateUsername = async (req, res) => {
   const storedToken = req.headers.token;
   const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
@@ -330,7 +330,6 @@ export const updateProfileImage = async (req, res) => {
       status: STATUS_CODES.BAD_REQUEST_CODE,
     });
   }
-
   const dbConnection = mysql.createConnection(dbConfig);
   dbConnection.connect();
   dbConnection.query(
@@ -358,3 +357,4 @@ export const deleteAccount = async (req, res) => {
   );
   dbConnection.end();
 };
+
