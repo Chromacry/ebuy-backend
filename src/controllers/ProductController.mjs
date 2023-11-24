@@ -36,12 +36,26 @@ export const addProduct = (req, res) => {
   }
   try {
     const model = new Product(null, body?.seller_id, body?.product_name, body?.product_description, body?.product_image, body?.product_quantity, null, body?.created_time);
-    productDao.addProduct(model, (error, result) => {
+    
+    //* Check if product already exists
+    productDao.getProductByProductNameAndSellerId(model, (error, result) => {
       if (error) throw new Error(error);
-      res.json({
-        message : 'Added product successfully!',
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE
+      if (result.length <= 1) {
+        res.json({
+          message : 'Product already exists!',
+          data: result,
+          status: STATUS_CODES.SUCCESS_CODE
+        });
+        return
+      }
+      
+      productDao.addProduct(model, (error, result) => {
+        if (error) throw new Error(error);
+        res.json({
+          message : 'Added product successfully!',
+          data: result,
+          status: STATUS_CODES.SUCCESS_CODE
+        });
       });
     });
   } catch (error) {
