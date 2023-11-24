@@ -33,7 +33,7 @@ export class ProductValidations {
     }
     if (!body?.product_quantity && Number.isInteger(body?.product_quantity)){
       res.json({
-        message: "productQuantity field required! , field-type: Integer",
+        message: "productQuantity field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       })
       return
