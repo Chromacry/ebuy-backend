@@ -20,22 +20,6 @@ export class ProductDao {
     });
   }
 
-  getProduct(model) {
-    return new Promise((resolve, reject) => {
-      const dbConnection = mysql.createConnection(dbConfig);
-      dbConnection.connect();
-      const sql = `SELECT * FROM ${dbTableName} WHERE id = ?`;
-      dbConnection.query(sql, [model.getId()], (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-      dbConnection.end();
-    });
-  }
-
   addProduct(model) {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
