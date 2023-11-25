@@ -236,62 +236,97 @@ export const getUser = async (req, res) => {
 
 export const passwordReset = async (req, res) => {
   const storedToken = req.headers.token;
-  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-  const currentPassword = req.body.currentPassword;
-  const newPassword = req.body.newPassword;
-  const confirmPassword = req.body.confirmPassword;
 
-  // Validation checks
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    return res.json({
-      message: "All fields are required!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
-    });
-  }
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    const currentPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+    const confirmPassword = req.body.confirmPassword;
 
-  if (newPassword !== confirmPassword) {
-    return res.json({
-      message: "New password and confirm password do not match!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
-    });
-  }
-
-  const dbConnection = mysql.createConnection(dbConfig);
-  dbConnection.connect();
-
-  dbConnection.query(
-    "SELECT * FROM users WHERE id = ? AND token = ?",
-    [decoded.id, decoded.token],
-    async (Err, result) => {
-      if (Err) throw Err;
-
-      if (
-        !result.length ||
-        !(await bcrypt.compare(currentPassword, result[0].password))
-      ) {
-        return res.json({ message: "Incorrect Entries!", status: STATUS_CODES.BAD_REQUEST_CODE });
-      } else {
-        const dbConnection = mysql.createConnection(dbConfig);
-        dbConnection.connect();
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        dbConnection.query(
-          "UPDATE users SET password = ? WHERE id = ?",
-          [hashedPassword, decoded.id],
-          async (err, result) => {
-            if (err) throw err;
-          }
-        );
-        dbConnection.end();
-
-        return res.json({
-          message: "Password Reset Successfully!",
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
-      }
+    // Validation checks
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.json({
+        message: "All fields are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     }
-  );
-  dbConnection.end();
+
+    if (newPassword !== confirmPassword) {
+      return res.json({
+        message: "New password and confirm password do not match!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.json({
+        message: "New password must be different from the current password!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "SELECT * FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+
+    if (!result.length || !(await bcrypt.compare(currentPassword, result[0].password))) {
+      return res.json({ message: "Incorrect Entries!", status: STATUS_CODES.BAD_REQUEST_CODE });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "UPDATE users SET password = ? WHERE id = ?",
+        [hashedPassword, decoded.id],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+    dbConnection.end();
+
+    return res.json({
+      message: "Password Reset Successfully!",
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+
+
+    // Handling JWT Token Decoding Error
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+      message: "Unauthorized: Invalid or Expired Token!",
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+
+    // Generic error handling
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  } 
+    
+  
 };
+
   
 export const updateUsername = async (req, res) => {
   const storedToken = req.headers.token;
