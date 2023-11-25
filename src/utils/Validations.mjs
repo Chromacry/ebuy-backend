@@ -39,4 +39,20 @@ export class ProductValidations {
       return
     }
   }
+
+  deleteProductValidator(body) {
+    //* Validation Check
+    if (!body?.id && Number.isInteger(body?.id)) {
+      return {
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+    if (!body?.seller_id && Number.isInteger(body?.seller_id)) {
+      return {
+        message: "sellerId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+  }
 }
