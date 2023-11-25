@@ -35,8 +35,8 @@ export class ProductDao {
   {
     const dbConnection = mysql.createConnection(dbConfig);
     dbConnection.connect();
-    const sql = `SELECT * FROM ${dbTableName} WHERE seller_id = ? AND product_name = ?`;
-    dbConnection.query(sql, [model.getSellerId(), model.getProductName()], callback);
+    const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND seller_id = ?`;
+    dbConnection.query(sql, [model.getId(), model.getSellerId()], callback);
     dbConnection.end();
   }
 
