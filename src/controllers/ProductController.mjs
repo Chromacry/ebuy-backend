@@ -2,7 +2,7 @@ import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { ProductDao } from "../dao/ProductDao.mjs";
 import { Product } from "../models/ProductModel.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
-import { ProductValidations } from "../utils/Validations.mjs";
+import { ProductValidations } from "../utils/RequestBodyValidationUtil.mjs";
 const productDao = new ProductDao();
 const productValidations = new ProductValidations()
 
@@ -59,6 +59,51 @@ export const addProduct = (req, res) => {
         if (error) throw new Error(error);
         res.json({
           message : 'Added product successfully!',
+          data: result,
+          status: STATUS_CODES.SUCCESS_CODE
+        });
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message : `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE
+    });
+  }
+}
+
+export const deleteProduct = (req, res) => {
+  try {
+    const body = {
+      id: req?.query?.id,
+      seller_id: req?.query?.sellerId,
+      deleted_time: getDateTimeNowLocalISOString()
+    }
+    const validationResult = productValidations.deleteProductValidator(body)
+    if (validationResult) {
+      res.json(validationResult)
+      return
+    }
+    const model = new Product(body?.id, body?.seller_id);
+    
+    //* Check if product already exists
+    productDao.getProductById(model, (error, result) => {
+      if (error) throw new Error(error);
+      console.log(result)
+      if (result.length < 1) {
+        res.json({
+          message : 'Product does not exist!',
+          data: result,
+          status: STATUS_CODES.BAD_REQUEST_CODE
+        });
+        return
+      }
+      
+      productDao.deleteProduct(model, (error, result) => {
+        if (error) throw new Error(error);
+        res.json({
+          message : 'Deleted product successfully!',
           data: result,
           status: STATUS_CODES.SUCCESS_CODE
         });
