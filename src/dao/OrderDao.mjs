@@ -31,4 +31,14 @@ export class OrderDao {
     dbConnection.query(sql, [model.getId(), model.getProductId(), model.getUserId()], callback);
     dbConnection.end();
   }
+
+  
+  updateOrder(model, callback) 
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `UPDATE ${dbTableName} SET order_status = COALESCE(?, order_status) WHERE id = ? AND product_id = ? AND user_id = ?`;
+    dbConnection.query(sql, [model.getOrderStatus(), model.getId(), model.getProductId(), model.getUserId()], callback);
+    dbConnection.end();
+  }
 }
