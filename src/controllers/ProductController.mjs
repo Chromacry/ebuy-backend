@@ -6,17 +6,15 @@ import { ProductValidations } from "../utils/RequestBodyValidationUtil.mjs";
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
 
-export const getAllProducts = (req, res) => {
+export const getAllProducts = async (req, res) => {
   const body = {};
   try {
     const model = new Product();
-    productDao.getAllProducts(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Successfully retrieved all products!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    const getALlProductsResult = await productDao.getAllProducts(model);
+    res.json({
+      message: "Successfully retrieved all products!",
+      data: getALlProductsResult,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -27,35 +25,36 @@ export const getAllProducts = (req, res) => {
   }
 };
 
-export const getProduct = (req, res) => {
-  const body = {
-    id: parseInt(req?.query?.id),
-  };
-  //* Check api params
-  const validationResult = productValidations.getProductValidator(body);
+export const getProduct = async (req, res) => {
+  try {
+    let result;
+
+    const body = {
+      id: parseInt(req?.query?.id),
+    };
+    //* Check api params
+    const validationResult = productValidations.getProductValidator(body);
     if (validationResult) {
       res.json(validationResult);
       return;
     }
-
-  try {
     const model = new Product(body?.id);
-    productDao.getProduct(model, (error, result) => {
-      if (error) throw new Error(error);
-      if (result.length < 1) {
-        res.json({
-          message: "Product does not exist!",
-          data: result,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
-        return  
-      }
+    result = await productDao.getProduct(model);
+    if (result.length < 1) {
       res.json({
-        message: "Successfully retrieved product!",
+        message: "Product does not exist!",
         data: result,
         status: STATUS_CODES.SUCCESS_CODE,
       });
+      return  
+    }
+
+    res.json({
+      message: "Successfully retrieved product!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
+
   } catch (error) {
     console.error(error);
     res.json({
@@ -65,8 +64,10 @@ export const getProduct = (req, res) => {
   }
 };
 
-export const addProduct = (req, res) => {
+export const addProduct = async (req, res) => {
   try {
+    let result;
+
     const body = {
       seller_id: req?.body?.sellerId,
       product_name: req?.body?.productName,
@@ -75,14 +76,12 @@ export const addProduct = (req, res) => {
       product_quantity: req?.body?.productQuantity,
       created_time: getDateTimeNowLocalISOString(),
     };
-
     //* Validate request body
     const validationResult = productValidations.addProductValidator(body);
     if (validationResult) {
       res.json(validationResult)
       return
     }
-
     const model = new Product(
       null,
       body?.seller_id,
@@ -93,27 +92,21 @@ export const addProduct = (req, res) => {
       null,
       body?.created_time
     );
-
     //* Check if product already exists
-    productDao.getProductByProductNameAndSellerId(model, (error, result) => {
-      if (error) throw new Error(error);
-      if (result.length >= 1) {
-        res.json({
-          message: "Product already exists!",
-          data: result,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-        return;
-      }
-
-      productDao.addProduct(model, (error, result) => {
-        if (error) throw new Error(error);
-        res.json({
-          message: "Added product successfully!",
-          data: result,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
+    result = await productDao.getProductByProductNameAndSellerId(model);
+    if (result.length >= 1) {
+      res.json({
+        message: "Product already exists!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
+      return;
+    }
+    result = await productDao.addProduct(model)
+    res.json({
+      message: "Added product successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -124,8 +117,10 @@ export const addProduct = (req, res) => {
   }
 };
 
-export const deleteProduct = (req, res) => {
+export const deleteProduct = async (req, res) => {
   try {
+    let result;
+
     const body = {
       id: parseInt(req?.query?.id),
       seller_id: parseInt(req?.query?.sellerId),
@@ -139,27 +134,23 @@ export const deleteProduct = (req, res) => {
     const model = new Product(body?.id, body?.seller_id);
 
     //* Check if product already exists
-    productDao.getProductById(model, (error, result) => {
-      if (error) throw new Error(error);
-      console.log(result);
-      if (result.length < 1) {
-        res.json({
-          message: "Product does not exist!",
-          data: result,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-        return;
-      }
-
-      productDao.deleteProduct(model, (error, result) => {
-        if (error) throw new Error(error);
-        res.json({
-          message: "Deleted product successfully!",
-          data: result,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
+    result = await productDao.getProductById(model)
+    if (result.length < 1) {
+      res.json({
+        message: "Product does not exist!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
+      return;
+    }
+
+    result = await productDao.deleteProduct(model)
+    res.json({
+      message: "Deleted product successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
+
   } catch (error) {
     console.error(error);
     res.json({
@@ -169,8 +160,10 @@ export const deleteProduct = (req, res) => {
   }
 };
 
-export const updateProduct = (req, res) => {
+export const updateProduct = async (req, res) => {
   try {
+    let result;
+    
     const body = {
       id: req?.body?.id,
       seller_id: req?.body?.sellerId,
@@ -198,38 +191,32 @@ export const updateProduct = (req, res) => {
     );
 
     //* Check if product Id exist
-    productDao.getProductById(model, (error, result) => {
-      if (error) throw new Error(error);
-      if (result.length < 1) {
-        res.json({
-          message: "Product does not exist!",
-          data: result,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-        return;
-      }
+    result = await productDao.getProductById(model)
+    if (result.length < 1) {
+      res.json({
+        message: "Product does not exist!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
+    }
 
       //* Check if product name exists, to avoid duplicates
-      productDao.getProductByProductNameAndSellerId(model, (error, result) => {
-        if (error) throw new Error(error);
-        if (result.length >= 1) {
-          res.json({
-            message: "Product already exist!",
-            data: result,
-            status: STATUS_CODES.BAD_REQUEST_CODE,
-          });
-          return;
-        }
-
-        productDao.updateProduct(model, (error, result) => {
-          if (error) throw new Error(error);
-          res.json({
-            message: "Updated product successfully!",
-            data: result,
-            status: STATUS_CODES.SUCCESS_CODE,
-          });
-        });
+    result = await productDao.getProductByProductNameAndSellerId(model)
+    if (result.length >= 1) {
+      res.json({
+        message: "Product already exist!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
+      return;
+    }
+
+    result = await productDao.updateProduct(model)
+    res.json({
+      message: "Updated product successfully!",
+      data: updateProductResult,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
