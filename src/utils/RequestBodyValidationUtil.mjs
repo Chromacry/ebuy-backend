@@ -3,7 +3,7 @@ import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 export class ProductValidations {
   addProductValidator(body, res) {
     //* Validation Check
-    if (!body?.seller_id && Number.isInteger(body?.seller_id)) {
+    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
       return {
         message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -27,7 +27,7 @@ export class ProductValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       }
     }
-    if (!body?.product_quantity && Number.isInteger(body?.product_quantity)) {
+    if (!body?.product_quantity || !Number.isInteger(body?.product_quantity)) {
       return {
         message: "productQuantity field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -37,13 +37,13 @@ export class ProductValidations {
 
   deleteProductValidator(body) {
     //* Validation Check
-    if (!body?.id && Number.isInteger(body?.id)) {
+    if (!body?.id || !Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.seller_id && Number.isInteger(body?.seller_id)) {
+    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
       return {
         message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -60,8 +60,7 @@ export class ProductValidations {
       };
     }
     if (
-      (!body?.seller_id && Number.isInteger(body?.seller_id)) ||
-      body?.seller_id === undefined
+      (!body?.seller_id || !Number.isInteger(body?.seller_id))
     ) {
       return {
         message: "sellerId field required!, field-type: Integer",
