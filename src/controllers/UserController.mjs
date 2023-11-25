@@ -346,16 +346,43 @@ export const updateProfileImage = async (req, res) => {
   
 export const deleteAccount = async (req, res) => {
   const storedToken = req.headers.token;
-  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-  const dbConnection = mysql.createConnection(dbConfig);
-  dbConnection.connect();
-  dbConnection.query(
-    "DELETE FROM users WHERE id = ? AND token = ?",[decoded.id, decoded.token],
-    async (err, result) => {
-      if (err) throw res.json({ message: "Internal Server Error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
-      if (result) return res.json({ message: "Account Deleted Successfully!", status: STATUS_CODES.SUCCESS_CODE });
+
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "DELETE FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+    dbConnection.end();
+    if (result.affectedRows > 0) {
+      return res.json({ message: "Account Deleted Successfully!", status: STATUS_CODES.SUCCESS_CODE });
     }
-  );
-  dbConnection.end();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Invalid token, user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    console.error("Error in deleteAccount:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+    
 };
+
 
