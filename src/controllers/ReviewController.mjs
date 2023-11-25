@@ -5,8 +5,9 @@ import { ReviewValidations } from "../utils/ReviewBodyValidationUtil.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 const reviewDao = new ReviewDao();
 const reviewValidations = new ReviewValidations();
-export const addReview = (req, res) => {
+export const addReview = async (req, res) => {
   try {
+    let result;
     const body = {
       user_id: req?.body?.user_id,
       product_id: req?.body?.product_id,
@@ -29,13 +30,11 @@ export const addReview = (req, res) => {
       body.created_time,
       body.review_image
     );
-    reviewDao.addReview(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Review added successfully!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await reviewDao.addReview(model);
+    res.json({
+      message: "Review added successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -46,10 +45,11 @@ export const addReview = (req, res) => {
   }
 };
 
-export const getProductReviews = (req, res) => {
+export const getProductReviews = async (req, res) => {
   try {
+    let result;
     const body = {
-      product_id: parseInt(req?.query?.id)
+      product_id: parseInt(req?.query?.id),
     };
     const validationResult = reviewValidations.getProductReviewsValidator(body);
     if (validationResult) {
@@ -59,13 +59,12 @@ export const getProductReviews = (req, res) => {
     const model = new Review();
     model.setProductId(body.product_id);
     console.log(model.getProductId());
-    reviewDao.getProductReviews(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Review retrieved successfully!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await reviewDao.getProductReviews(model);
+
+    res.json({
+      message: "Review retrieved successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -76,8 +75,9 @@ export const getProductReviews = (req, res) => {
   }
 };
 
-export const updateReview = (req, res) => {
+export const updateReview = async (req, res) => {
   try {
+    let result;
     const body = {
       id: req?.body?.id,
       content: req?.body?.content,
@@ -99,13 +99,11 @@ export const updateReview = (req, res) => {
       body.review_image
     );
     console.log(model);
-    reviewDao.updateReview(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Review updated successfully!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await reviewDao.updateReview(model);
+    res.json({
+      message: "Review updated successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -116,9 +114,9 @@ export const updateReview = (req, res) => {
   }
 };
 
-
-export const deleteReview = (req, res) => {
+export const deleteReview = async (req, res) => {
   try {
+    let result;
     const body = {
       id: parseInt(req?.query?.id),
     };
@@ -129,13 +127,11 @@ export const deleteReview = (req, res) => {
     }
     const model = new Review();
     model.setId(body.id);
-    reviewDao.deleteReview(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Review successfully deleted!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await reviewDao.deleteReview(model);
+    res.json({
+      message: "Review successfully deleted!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
