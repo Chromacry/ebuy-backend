@@ -121,3 +121,49 @@ export const updateOrder = (req, res) => {
     });
   }
 };
+
+export const deleteOrder = (req, res) => {
+  try {
+    const body = {
+      id: req?.query?.id,
+      product_id: req?.query?.product_id,
+      user_id: req?.query?.user_id,
+      deleted_time: getDateTimeNowLocalISOString(),
+    };
+    const validationResult = orderValidations.deleteOrderValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
+    const model = new Order(body?.id, body?.product_id, body?.user_id);
+
+    //* Check if order already exists
+    orderDao.getOrderById(model, (error, result) => {
+      if (error) throw new Error(error);
+      console.log(result);
+      if (result.length < 1) {
+        res.json({
+          message: "Order does not exist!",
+          data: result,
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+        return;
+      }
+
+      orderDao.deleteOrder(model, (error, result) => {
+        if (error) throw new Error(error);
+        res.json({
+          message: "Deleted product successfully!",
+          data: result,
+          status: STATUS_CODES.SUCCESS_CODE,
+        });
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
