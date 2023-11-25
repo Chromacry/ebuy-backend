@@ -145,4 +145,32 @@ export class OrderValidations {
       return;
     }
   }
+
+  updateOrderValidator(body) {
+    //* Validation Check
+    if (!body?.id || !Number.isInteger(body?.id)) {
+      return {
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (
+      (!body?.product_id && Number.isInteger(body?.product_id)) ||
+      body?.product_id === undefined
+    ) {
+      return {
+        message: "ProductId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (
+      (!body?.user_id && Number.isInteger(body?.user_id)) ||
+      body?.user_id === undefined
+    ) {
+      return {
+        message: "UserId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+  }
 }
