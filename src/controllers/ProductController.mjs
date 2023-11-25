@@ -27,6 +27,44 @@ export const getAllProducts = (req, res) => {
   }
 };
 
+export const getProduct = (req, res) => {
+  const body = {
+    id: parseInt(req?.query?.id),
+  };
+  //* Check api params
+  const validationResult = productValidations.getProductValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
+
+  try {
+    const model = new Product(body?.id);
+    productDao.getProduct(model, (error, result) => {
+      if (error) throw new Error(error);
+      if (result.length < 1) {
+        res.json({
+          message: "Product does not exist!",
+          data: result,
+          status: STATUS_CODES.SUCCESS_CODE,
+        });
+        return  
+      }
+      res.json({
+        message: "Successfully retrieved product!",
+        data: result,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
+
 export const addProduct = (req, res) => {
   try {
     const body = {
@@ -38,7 +76,12 @@ export const addProduct = (req, res) => {
       created_time: getDateTimeNowLocalISOString(),
     };
 
-    productValidations.addProductValidator(body, res);
+    //* Validate request body
+    const validationResult = productValidations.addProductValidator(body);
+    if (validationResult) {
+      res.json(validationResult)
+      return
+    }
 
     const model = new Product(
       null,
@@ -84,8 +127,8 @@ export const addProduct = (req, res) => {
 export const deleteProduct = (req, res) => {
   try {
     const body = {
-      id: req?.query?.id,
-      seller_id: req?.query?.sellerId,
+      id: parseInt(req?.query?.id),
+      seller_id: parseInt(req?.query?.sellerId),
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = productValidations.deleteProductValidator(body);

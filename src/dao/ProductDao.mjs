@@ -13,6 +13,15 @@ export class ProductDao {
     dbConnection.end();
   }
 
+  getProduct(model, callback) 
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `SELECT * FROM ${dbTableName} WHERE id = ?`;
+    dbConnection.query(sql, [model.getId()], callback);
+    dbConnection.end();
+  }
+
   addProduct(model, callback) 
   {
     const dbConnection = mysql.createConnection(dbConfig);
