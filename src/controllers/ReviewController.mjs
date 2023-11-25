@@ -1,26 +1,34 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { ReviewDao } from "../dao/ReviewDao.mjs";
 import { Review } from "../models/ReviewModel.mjs";
-
+import { ReviewValidations } from "../utils/ReviewBodyValidationUtil.mjs";
+import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 const reviewDao = new ReviewDao();
-
+const reviewValidations = new ReviewValidations();
 export const addReview = (req, res) => {
   try {
-    var tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-    var localISOTime = new Date(Date.now() - tzoffset)
-      .toISOString()
-      .slice(0, -1);
-    console.log(localISOTime);
+    const body = {
+      user_id: req?.body?.user_id,
+      product_id: req?.body?.product_id,
+      rating: req?.body?.rating,
+      content: req?.body?.content,
+      review_image: req?.body?.review_image,
+      created_time: getDateTimeNowLocalISOString(),
+    };
+    const validationResult = reviewValidations.addReviewValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
     const model = new Review(
       null,
-      req.body.content,
-      req.body.rating,
-      req.body.user_id,
-      req.body.product_id,
-      localISOTime,
-      req.body.review_image
+      body.content,
+      body.rating,
+      body.user_id,
+      body.product_id,
+      body.created_time,
+      body.review_image
     );
-    console.log(model);
     reviewDao.addReview(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
@@ -40,8 +48,16 @@ export const addReview = (req, res) => {
 
 export const getProductReviews = (req, res) => {
   try {
+    const body = {
+      product_id: parseInt(req?.query?.id)
+    };
+    const validationResult = reviewValidations.getProductReviewsValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
     const model = new Review();
-    model.setProductId(req.params.id);
+    model.setProductId(body.product_id);
     console.log(model.getProductId());
     reviewDao.getProductReviews(model, (error, result) => {
       if (error) throw new Error(error);
@@ -62,14 +78,25 @@ export const getProductReviews = (req, res) => {
 
 export const updateReview = (req, res) => {
   try {
+    const body = {
+      id: req?.body?.id,
+      content: req?.body?.content,
+      rating: req?.body?.rating,
+      review_image: req?.body?.review_image,
+    };
+    const validationResult = reviewValidations.updateReviewValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
     const model = new Review(
-      req.body.id,
-      req.body.content,
-      req.body.rating,
+      body.id,
+      body.content,
+      body.rating,
       null,
       null,
       null,
-      req.body.review_image
+      body.review_image
     );
     console.log(model);
     reviewDao.updateReview(model, (error, result) => {
@@ -92,8 +119,16 @@ export const updateReview = (req, res) => {
 
 export const deleteReview = (req, res) => {
   try {
+    const body = {
+      id: parseInt(req?.query?.id),
+    };
+    const validationResult = reviewValidations.deleteReviewValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
     const model = new Review();
-    model.setId(req.params.id);
+    model.setId(body.id);
     reviewDao.deleteReview(model, (error, result) => {
       if (error) throw new Error(error);
       res.json({
