@@ -1,49 +1,54 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 
 export class ProductValidations {
-  addProductValidator(body) {
+  addProductValidator(body, res) {
     //* Validation Check
-    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
-      return {
+    if (!body?.seller_id && Number.isInteger(body?.seller_id)) {
+      res.json({
         message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
     }
-    if (!body?.product_name){
-      return {
+    if (!body?.product_name) {
+      res.json({
         message: "productName field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
     }
-    if (!body?.product_description){
-      return {
+    if (!body?.product_description) {
+      res.json({
         message: "productDescription field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
     }
-    if (!body?.product_image){
-      return {
+    if (!body?.product_image) {
+      res.json({
         message: "productImage field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
     }
-    if (!body?.product_quantity || !Number.isInteger(body?.product_quantity)){
-      return {
+    if (!body?.product_quantity && Number.isInteger(body?.product_quantity)) {
+      res.json({
         message: "productQuantity field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
     }
   }
 
   deleteProductValidator(body) {
     //* Validation Check
-    if (!body?.id || !Number.isInteger(body?.id)) {
+    if (!body?.id && Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
+    if (!body?.seller_id && Number.isInteger(body?.seller_id)) {
       return {
         message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -59,7 +64,10 @@ export class ProductValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.seller_id || !Number.isInteger(body?.seller_id)|| body?.seller_id === undefined) {
+    if (
+      (!body?.seller_id && Number.isInteger(body?.seller_id)) ||
+      body?.seller_id === undefined
+    ) {
       return {
         message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -138,13 +146,53 @@ export class OrderValidations {
     }
   }
 
-  getProductValidator(body) {
+  updateOrderValidator(body) {
     //* Validation Check
     if (!body?.id || !Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (
+      (!body?.product_id && Number.isInteger(body?.product_id)) ||
+      body?.product_id === undefined
+    ) {
+      return {
+        message: "ProductId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (
+      (!body?.user_id && Number.isInteger(body?.user_id)) ||
+      body?.user_id === undefined
+    ) {
+      return {
+        message: "UserId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+  }
+
+  deleteOrderValidator(body) {
+    //* Validation Check
+    if (!body?.id && Number.isInteger(body?.id)) {
+      return {
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (!body?.product_id && Number.isInteger(body?.product_id)) {
+      return {
+        message: "ProductId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (!body?.user_id && Number.isInteger(body?.user_id)) {
+      return {
+        message: "UserId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
     }
   }
 }
