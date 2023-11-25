@@ -44,7 +44,7 @@ export class ProductValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
-    if (!body?.seller_id || !umber.isInteger(body?.seller_id)) {
+    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
       return {
         message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
