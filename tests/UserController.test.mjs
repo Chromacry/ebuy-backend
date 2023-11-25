@@ -4,6 +4,7 @@ import {
   register,
   login,
   getUser,
+  deleteAccount,
 } from "../src/controllers/UserController.mjs";
 
 describe("UserController", () => {
@@ -172,5 +173,24 @@ describe("UserController", () => {
           });
         });
       });
-  });
 
+      describe('deleteAccount', () => {
+        it('should delete a user account successfully', async () => {
+          mockReq.headers = { token: token };
+          await deleteAccount(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "Account Deleted Successfully!",
+            status: STATUS_CODES.SUCCESS_CODE,
+          });
+        });
+        it("should return an error for invalid or expired token with user not found error ", async () => {
+          mockReq.headers = { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvZSBCbG9nZ3MiLCJpYXQiOjE1MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" };
+          // Mock JWT verification to throw an error or return invalid
+          await deleteAccount(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "Invalid token, user not found!",
+            status: STATUS_CODES.UNAUTHORIZED_CODE,
+          });
+        });
+  });
+});
