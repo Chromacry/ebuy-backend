@@ -76,7 +76,12 @@ export const addProduct = (req, res) => {
       created_time: getDateTimeNowLocalISOString(),
     };
 
-    productValidations.addProductValidator(body, res);
+    //* Validate request body
+    const validationResult = productValidations.addProductValidator(body);
+    if (validationResult) {
+      res.json(validationResult)
+      return
+    }
 
     const model = new Product(
       null,
@@ -122,8 +127,8 @@ export const addProduct = (req, res) => {
 export const deleteProduct = (req, res) => {
   try {
     const body = {
-      id: req?.query?.id,
-      seller_id: req?.query?.sellerId,
+      id: parseInt(req?.query?.id),
+      seller_id: parseInt(req?.query?.sellerId),
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = productValidations.deleteProductValidator(body);
