@@ -183,59 +183,55 @@ export const getUser = async (req, res) => {
   if (!storedToken) {
     return res.status(401).json({
       message: "Unauthorized: Token not found in request headers!",
-      status: STATUS_CODES.UNAUTHORIZED_CODE, // Updated status code for unauthorized access
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
     });
   }
 
   const dbConnection = mysql.createConnection(dbConfig);
 
   try {
-    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     dbConnection.connect();
 
-    dbConnection.query(
-      "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
-      [decoded.id, decoded.token],
-      (err, result) => {
-        if (err) {
-          console.error("Error querying database:", err);
-          dbConnection.end();
-          return res.status(500).json({
-            message: "Internal server error!",
-            status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
-          });
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
         }
-
-        if (!result.length) {
-          console.log("No user found for given token");
-          dbConnection.end();
-          return res.status(401).json({
-            message: "Unauthorized: Invalid token or user not found!",
-            status: STATUS_CODES.UNAUTHORIZED_CODE,
-          });
-        }
-
-        dbConnection.end();
-        console.log("User found: ", result[0]);
-        return res.json({
-          username: result[0].username,
-          profile_image: result[0].profile_image,
-          email: result[0].email,
-          id: result[0].id,
-          created_time: result[0].created_time,
-        });
-      }
-    );
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    dbConnection.end();
-    return res.status(401).json({
-      message: "Unauthorized: Invalid token!",
-      status: STATUS_CODES.UNAUTHORIZED_CODE,
+      );
     });
+
+    if (!result.length) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid token or user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+
+    return res.json({
+      username: result[0].username,
+      profile_image: result[0].profile_image,
+      email: result[0].email,
+      id: result[0].id,
+      created_time: result[0].created_time,
+    });
+  } catch (error) {
+    console.error("Error in getUser:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  } finally {
+    dbConnection.end();
   }
 };
+
 
 
 
