@@ -180,6 +180,7 @@ export const login = async (req, res) => {
 
 export const getUser = async (req, res) => {
   const storedToken = req.headers.token; // Retrieve token from request headers
+  console.log("Token gotten from test: ",storedToken)
 
   if (!storedToken) {
     return res.json({
@@ -192,6 +193,8 @@ export const getUser = async (req, res) => {
 
   try {
     const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    console.log("Decoded id in function:", decoded.id)
+    console.log("Decoded token in function:", decoded.token)
     dbConnection.connect();
     dbConnection.query(
       "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
