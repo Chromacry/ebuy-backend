@@ -178,13 +178,12 @@ export const login = async (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-  const storedToken = req.headers.token; // Retrieve token from request headers
-  console.log("Token gotten from test: ",storedToken)
+  const storedToken = req.headers.token;
 
   if (!storedToken) {
-    return res.json({
+    return res.status(401).json({
       message: "Unauthorized: Token not found in request headers!",
-      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+      status: STATUS_CODES.UNAUTHORIZED_CODE, // Updated status code for unauthorized access
     });
   }
 
@@ -192,48 +191,53 @@ export const getUser = async (req, res) => {
 
   try {
     const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-    console.log("Decoded id in function:", decoded.id)
-    console.log("Decoded token in function:", decoded.token)
+
     dbConnection.connect();
+
     dbConnection.query(
       "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
-      [decoded.id, decoded.token], // Use the stored token in the query
-      async (Err, result) => {
-        if (Err) {
-          console.error("Error querying database:", Err);
+      [decoded.id, decoded.token],
+      (err, result) => {
+        if (result){
+          dbConnection.end();
+          console.log("User found: ", result[0]);
+          return res.json({
+            username: result[0].username,
+            profile_image: result[0].profile_image,
+            email: result[0].email,
+            id: result[0].id,
+            created_time: result[0].created_time,
+          });
+        }
+        else if (err) {
+          console.error("Error querying database:", err);
+          dbConnection.end();
           return res.status(500).json({
             message: "Internal server error!",
             status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
           });
         }
-
-        if (!result.length) {
-          return res.json({
+        else if (!result.length) {
+          console.log("No user found for given token");
+          dbConnection.end();
+          return res.status(401).json({
             message: "Unauthorized: Invalid token or user not found!",
-            status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            status: STATUS_CODES.UNAUTHORIZED_CODE,
           });
         }
-
-        return res.json({
-          username: result[0].username,
-          profile_image: result[0].profile_image,
-          email: result[0].email,
-          id: result[0].id,
-          created_time: result[0].created_time,
-
-        });
       }
     );
   } catch (error) {
     console.error("Error decoding token:", error);
+    dbConnection.end();
     return res.status(401).json({
       message: "Unauthorized: Invalid token!",
-      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
     });
-  } finally {
-    dbConnection.end();
   }
 };
+
+
 
 export const passwordReset = async (req, res) => {
   const storedToken = req.headers.token;
