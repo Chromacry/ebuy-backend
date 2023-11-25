@@ -7,13 +7,14 @@ const productDao = new ProductDao();
 const productValidations = new ProductValidations();
 
 export const getAllProducts = async (req, res) => {
-  const body = {};
   try {
+    let result;
+    const body = {};
     const model = new Product();
-    const getALlProductsResult = await productDao.getAllProducts(model);
+    result = await productDao.getAllProducts(model);
     res.json({
       message: "Successfully retrieved all products!",
-      data: getALlProductsResult,
+      data: result,
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
@@ -215,7 +216,7 @@ export const updateProduct = async (req, res) => {
     result = await productDao.updateProduct(model)
     res.json({
       message: "Updated product successfully!",
-      data: updateProductResult,
+      data: result,
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
