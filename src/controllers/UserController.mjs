@@ -242,6 +242,8 @@ export const passwordReset = async (req, res) => {
     const currentPassword = req.body.currentPassword;
     const newPassword = req.body.newPassword;
     const confirmPassword = req.body.confirmPassword;
+
+    // Validation checks
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.json({
         message: "All fields are required!",
@@ -305,12 +307,17 @@ export const passwordReset = async (req, res) => {
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
+
+
+    // Handling JWT Token Decoding Error
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({
-        message: "Unauthorized: Invalid or Expired Token!",
-        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      message: "Unauthorized: Invalid or Expired Token!",
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
+
+    // Generic error handling
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -326,6 +333,7 @@ export const updateUsername = async (req, res) => {
   const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
   const username = req.body.username;
 
+  // Validation check
   if (!username) {
     return res.json({
       message: "Username cannot be empty!",
