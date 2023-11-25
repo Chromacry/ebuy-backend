@@ -6,6 +6,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
+
+import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 dotenv.config({ path: `.env.local`, override: true });
 
 export const register = async (req, res) => {
@@ -54,9 +56,6 @@ export const register = async (req, res) => {
     } else {
       const EncryptedPassword = await bcrypt.hash(password, 10);
 
-      // Get the current date and time
-      const currentDate = new Date().toLocaleDateString("en-GB");
-
       await new Promise((resolve, reject) => {
         dbConnection.query(
           "INSERT INTO users SET ?",
@@ -64,7 +63,7 @@ export const register = async (req, res) => {
             username: username,
             email: email,
             password: EncryptedPassword,
-            created_time: currentDate, // Add the created_time field with the formatted date
+            created_time: getDateTimeNowLocalISOString(), // Add the created_time field with the formatted date
           },
           (error, results) => {
             if (error) {
