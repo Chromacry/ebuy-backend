@@ -11,7 +11,7 @@ export class Order {
 			this.product_id = product_id;
 			this.user_id = user_id;
 			this.order_quantity = order_quantity;
-			this.order_statue = order_status;
+			this.order_status = order_status;
 			this.created_time = created_time;
 	}
 

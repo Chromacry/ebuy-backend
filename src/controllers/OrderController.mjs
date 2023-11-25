@@ -6,18 +6,23 @@ import { OrderValidations } from "../utils/RequestBodyValidationUtil.mjs";
 const orderDao = new OrderDao();
 const orderValidations = new OrderValidations();
 
-export const addOrder = (req, res) => {
+export const addOrder = async (req, res) => {
   try {
+    let result;
+
     const body = {
-        product_id: req?.body?.product_id,
-        user_id: req?.body?.user_id,
-        order_quantity: req?.body?.order_quantity,
-        order_status: req?.body?.order_status,
-        created_time: getDateTimeNowLocalISOString(),
+      product_id: parseInt(req?.body?.product_id),
+      user_id: parseInt(req?.body?.user_id),
+      order_quantity: parseInt(req?.body?.order_quantity),
+      order_status: req?.body?.order_status,
+      created_time: getDateTimeNowLocalISOString(),
     };
-
-    orderValidations.addOrderValidator(body, res);
-
+    //* Validate request body
+    const validationResult = orderValidations.addOrderValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
     const model = new Order(
       null,
       body?.product_id,
@@ -26,14 +31,11 @@ export const addOrder = (req, res) => {
       body?.order_status,
       body?.created_time
     );
-
-    orderDao.addOrder(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Added Order successfully!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await orderDao.addOrder(model);
+    res.json({
+      message: "Added Order successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -44,18 +46,16 @@ export const addOrder = (req, res) => {
   }
 };
 
-
-export const getAllOrders = (req, res) => {
-  const body = {};
+export const getAllOrders = async (req, res) => {
   try {
+    let result;
+
     const model = new Order();
-    orderDao.getAllOrders(model, (error, result) => {
-      if (error) throw new Error(error);
-      res.json({
-        message: "Successfully retrieved all orders!",
-        data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
+    result = await orderDao.getAllOrders(model);
+    res.json({
+      message: "Successfully retrieved all orders!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
@@ -66,13 +66,53 @@ export const getAllOrders = (req, res) => {
   }
 };
 
-export const updateOrder = (req, res) => {
+export const getOrders = async (req, res) => {
   try {
+    let result;
+
     const body = {
-      id: req?.body?.id,
-      product_id: req?.body?.product_id,
-      user_id: req?.body?.user_id,
-      order_quantity: req?.body?.order_quantity,
+      id: parseInt(req?.query?.id),
+    };
+    //* Check api params
+    const validationResult = orderValidations.getOrderValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
+    const model = new Order(body?.id);
+    result = await orderDao.getOrders(model);
+    if (result.length < 1) {
+      res.json({
+        message: "Order does not exist!",
+        data: result,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+      return;
+    }
+
+    res.json({
+      message: "Successfully retrieved order!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
+
+export const updateOrder = async (req, res) => {
+  try {
+    let result;
+
+    const body = {
+      id: parseInt(req?.body?.id),
+      product_id: parseInt(req?.body?.product_id),
+      user_id: parseInt(req?.body?.user_id),
+      order_quantity: parseInt(req?.body?.order_quantity),
       order_status: req?.body?.order_status,
       updated_time: getDateTimeNowLocalISOString(),
     };
@@ -93,26 +133,22 @@ export const updateOrder = (req, res) => {
     );
 
     //* Check if Order Id exist
-    orderDao.getOrderById(model, (error, result) => {
-      if (error) throw new Error(error);
-      if (result.length < 1) {
-        res.json({
-          message: "Order does not exist!",
-          data: result,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-        return;
-      }
-    
-    orderDao.updateOrder(model, (error, result) => {
-      if (error) throw new Error(error);
+    result = await orderDao.getOrderById(model);
+    if (result.length < 1) {
       res.json({
-        message: "Updated Order successfully!",
+        message: "Order does not exist!",
         data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
+      return;
+    }
+
+    result = await orderDao.updateOrder(model);
+    res.json({
+      message: "Updated Order successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
-  });
   } catch (error) {
     console.error(error);
     res.json({
@@ -122,12 +158,14 @@ export const updateOrder = (req, res) => {
   }
 };
 
-export const deleteOrder = (req, res) => {
+export const deleteOrder = async (req, res) => {
   try {
+    let result;
+
     const body = {
-      id: req?.query?.id,
-      product_id: req?.query?.product_id,
-      user_id: req?.query?.user_id,
+      id: parseInt(req?.query?.id),
+      product_id: parseInt(req?.query?.product_id),
+      user_id: parseInt(req?.query?.user_id),
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = orderValidations.deleteOrderValidator(body);
@@ -138,26 +176,21 @@ export const deleteOrder = (req, res) => {
     const model = new Order(body?.id, body?.product_id, body?.user_id);
 
     //* Check if order already exists
-    orderDao.getOrderById(model, (error, result) => {
-      if (error) throw new Error(error);
-      console.log(result);
-      if (result.length < 1) {
-        res.json({
-          message: "Order does not exist!",
-          data: result,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-        return;
-      }
-
-      orderDao.deleteOrder(model, (error, result) => {
-        if (error) throw new Error(error);
-        res.json({
-          message: "Deleted product successfully!",
-          data: result,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
+    result = await orderDao.getOrderById(model);
+    if (result.length < 1) {
+      res.json({
+        message: "Order does not exist!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
+      return;
+    }
+
+    result = await orderDao.deleteOrder(model);
+    res.json({
+      message: "Deleted order successfully!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
     console.error(error);
