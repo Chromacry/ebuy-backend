@@ -84,6 +84,15 @@ export class ProductValidations {
       };
     }
   }
+  getProductValidator(body) {
+    //* Validation Check
+    if (!body?.id || !Number.isInteger(body?.id)) {
+      return {
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+  }
 }
 
 export class OrderValidations {
@@ -135,16 +144,6 @@ export class OrderValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
       return;
-    }
-  }
-
-  getProductValidator(body) {
-    //* Validation Check
-    if (!body?.id || !Number.isInteger(body?.id)) {
-      return {
-        message: "id field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE
-      }
     }
   }
 }
