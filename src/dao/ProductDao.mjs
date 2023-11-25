@@ -31,7 +31,7 @@ export class ProductDao {
     dbConnection.end();
   }
 
-  getProductById(model, callback)
+  getProductById(model, callback) 
   {
     const dbConnection = mysql.createConnection(dbConfig);
     dbConnection.connect();
@@ -46,6 +46,14 @@ export class ProductDao {
     dbConnection.connect();
     const sql = `DELETE FROM ${dbTableName} WHERE id = ? AND seller_id = ?`;
     dbConnection.query(sql, [model.getId(), model.getSellerId()], callback);
+  }
+
+  updateProduct(model, callback) 
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `UPDATE ${dbTableName} SET product_name = COALESCE(?, product_name), product_description = COALESCE(?, product_description), product_image = COALESCE(?, product_image) WHERE id = ? AND seller_id = ? `;
+    dbConnection.query(sql, [model.getProductName(), model.getProductDescription(), model.getProductImage(), model.getId(), model.getSellerId()], callback);
     dbConnection.end();
   }
 }
