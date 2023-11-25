@@ -207,13 +207,6 @@ export const getUser = async (req, res) => {
       );
     });
 
-    if (!result.length) {
-      return res.status(401).json({
-        message: "Unauthorized: Invalid token or user not found!",
-        status: STATUS_CODES.UNAUTHORIZED_CODE,
-      });
-    }
-
     return res.json({
       username: result[0].username,
       profile_image: result[0].profile_image,
@@ -222,6 +215,12 @@ export const getUser = async (req, res) => {
       created_time: result[0].created_time,
     });
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid token or user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
     console.error("Error in getUser:", error);
     return res.status(error.status || 500).json({
       status: error.status || 500,
