@@ -30,4 +30,22 @@ export class ProductDao {
     dbConnection.query(sql, [model.getSellerId(), model.getProductName()], callback);
     dbConnection.end();
   }
+
+  getProductById(model, callback)
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND seller_id = ?`;
+    dbConnection.query(sql, [model.getId(), model.getSellerId()], callback);
+    dbConnection.end();
+  }
+
+  deleteProduct(model, callback)
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `DELETE FROM ${dbTableName} WHERE id = ? AND seller_id = ?`;
+    dbConnection.query(sql, [model.getId(), model.getSellerId()], callback);
+    dbConnection.end();
+  }
 }
