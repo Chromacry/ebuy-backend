@@ -39,4 +39,39 @@ export class ProductValidations {
       return
     }
   }
+
+  updateProductValidator(body) {
+    //* Validation Check
+    if (!body?.id || !Number.isInteger(body?.id)) {
+      return {
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
+      return {
+        message: "sellerId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+    if (!body?.product_name){
+      return {
+        message: "productName field required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+    if (!body?.product_description){
+      return {
+        message: "productDescription field required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+      
+    }
+    if (!body?.product_image){
+      return{
+        message: "productImage field required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE
+      }
+    }
+  }
 }
