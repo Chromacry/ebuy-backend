@@ -198,18 +198,7 @@ export const getUser = async (req, res) => {
       "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
       [decoded.id, decoded.token],
       (err, result) => {
-        if (result){
-          dbConnection.end();
-          console.log("User found: ", result[0]);
-          return res.json({
-            username: result[0].username,
-            profile_image: result[0].profile_image,
-            email: result[0].email,
-            id: result[0].id,
-            created_time: result[0].created_time,
-          });
-        }
-        else if (err) {
+        if (err) {
           console.error("Error querying database:", err);
           dbConnection.end();
           return res.status(500).json({
@@ -217,7 +206,8 @@ export const getUser = async (req, res) => {
             status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
           });
         }
-        else if (!result.length) {
+
+        if (!result.length) {
           console.log("No user found for given token");
           dbConnection.end();
           return res.status(401).json({
@@ -225,6 +215,16 @@ export const getUser = async (req, res) => {
             status: STATUS_CODES.UNAUTHORIZED_CODE,
           });
         }
+
+        dbConnection.end();
+        console.log("User found: ", result[0]);
+        return res.json({
+          username: result[0].username,
+          profile_image: result[0].profile_image,
+          email: result[0].email,
+          id: result[0].id,
+          created_time: result[0].created_time,
+        });
       }
     );
   } catch (error) {
