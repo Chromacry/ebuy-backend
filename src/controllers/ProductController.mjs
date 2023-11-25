@@ -76,7 +76,12 @@ export const addProduct = (req, res) => {
       created_time: getDateTimeNowLocalISOString(),
     };
 
-    productValidations.addProductValidator(body, res);
+    //* Validate request body
+    const validationResult = productValidations.addProductValidator(body);
+    if (validationResult) {
+      res.json(validationResult)
+      return
+    }
 
     const model = new Product(
       null,
