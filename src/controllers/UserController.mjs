@@ -178,62 +178,61 @@ export const login = async (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-  const storedToken = req.headers.token; // Retrieve token from request headers
-  console.log("Token gotten from test: ",storedToken)
+  const storedToken = req.headers.token;
 
   if (!storedToken) {
-    return res.json({
+    return res.status(401).json({
       message: "Unauthorized: Token not found in request headers!",
-      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
     });
   }
 
   const dbConnection = mysql.createConnection(dbConfig);
 
   try {
-    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-    console.log("Decoded id in function:", decoded.id)
-    console.log("Decoded token in function:", decoded.token)
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     dbConnection.connect();
-    dbConnection.query(
-      "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
-      [decoded.id, decoded.token], // Use the stored token in the query
-      async (Err, result) => {
-        if (Err) {
-          console.error("Error querying database:", Err);
-          return res.status(500).json({
-            message: "Internal server error!",
-            status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
-          });
+
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "SELECT username, email, profile_image, id, created_time FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
         }
+      );
+    });
 
-        if (!result.length) {
-          return res.json({
-            message: "Unauthorized: Invalid token or user not found!",
-            status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
-          });
-        }
-
-        return res.json({
-          username: result[0].username,
-          profile_image: result[0].profile_image,
-          email: result[0].email,
-          id: result[0].id,
-          created_time: result[0].created_time,
-
-        });
-      }
-    );
+    return res.json({
+      username: result[0].username,
+      profile_image: result[0].profile_image,
+      email: result[0].email,
+      id: result[0].id,
+      created_time: result[0].created_time,
+    });
   } catch (error) {
-    console.error("Error decoding token:", error);
-    return res.status(401).json({
-      message: "Unauthorized: Invalid token!",
-      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid token or user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    console.error("Error in getUser:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
     });
   } finally {
     dbConnection.end();
   }
 };
+
+
+
 
 export const passwordReset = async (req, res) => {
   const storedToken = req.headers.token;
@@ -347,16 +346,43 @@ export const updateProfileImage = async (req, res) => {
   
 export const deleteAccount = async (req, res) => {
   const storedToken = req.headers.token;
-  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-  const dbConnection = mysql.createConnection(dbConfig);
-  dbConnection.connect();
-  dbConnection.query(
-    "DELETE FROM users WHERE id = ? AND token = ?",[decoded.id, decoded.token],
-    async (err, result) => {
-      if (err) throw res.json({ message: "Internal Server Error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
-      if (result) return res.json({ message: "Account Deleted Successfully!", status: STATUS_CODES.SUCCESS_CODE });
+
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "DELETE FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+    dbConnection.end();
+    if (result.affectedRows > 0) {
+      return res.json({ message: "Account Deleted Successfully!", status: STATUS_CODES.SUCCESS_CODE });
     }
-  );
-  dbConnection.end();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Invalid token, user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    console.error("Error in deleteAccount:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+    
 };
+
 
