@@ -45,4 +45,24 @@ export const addOrder = (req, res) => {
 };
 
 
+export const getAllOrders = (req, res) => {
+  const body = {};
+  try {
+    const model = new Order();
+    orderDao.getAllOrders(model, (error, result) => {
+      if (error) throw new Error(error);
+      res.json({
+        message: "Successfully retrieved all orders!",
+        data: result,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
 

@@ -13,4 +13,22 @@ export class OrderDao {
     dbConnection.query(sql, [model.getProductId(), model.getUserId(), model.getOrderQuantity(), model.getOrderStatus(), model.getCreatedTime()], callback);
     dbConnection.end();
   }
+
+  getAllOrders(model, callback) 
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `SELECT * FROM ${dbTableName}`;
+    dbConnection.query(sql, [model.getId()], callback);
+    dbConnection.end();
+  }
+
+  getOrderById(model, callback) 
+  {
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+    const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND product_id = ? AND user_id = ?`;
+    dbConnection.query(sql, [model.getId(), model.getProductId(), model.getUserId()], callback);
+    dbConnection.end();
+  }
 }
