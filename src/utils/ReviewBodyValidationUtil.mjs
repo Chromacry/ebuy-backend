@@ -8,7 +8,7 @@ export class ReviewValidations {
         message: "userId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
-    }a
+    }
     if (!body?.product_id || !Number.isInteger(body?.product_id)){
       return {
         message: "productId field required!, field-type: Integer",
