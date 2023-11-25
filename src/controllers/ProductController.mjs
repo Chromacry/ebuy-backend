@@ -127,8 +127,8 @@ export const addProduct = (req, res) => {
 export const deleteProduct = (req, res) => {
   try {
     const body = {
-      id: req?.query?.id,
-      seller_id: req?.query?.sellerId,
+      id: parseInt(req?.query?.id),
+      seller_id: parseInt(req?.query?.sellerId),
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = productValidations.deleteProductValidator(body);
