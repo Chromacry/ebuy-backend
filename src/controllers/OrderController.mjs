@@ -136,10 +136,10 @@ export const updateOrder = async (req, res) => {
 
     const body = {
       id: parseInt(req?.body?.id),
-      product_id: parseInt(req?.body?.product_id),
-      user_id: parseInt(req?.body?.user_id),
-      order_quantity: parseInt(req?.body?.order_quantity),
-      order_status: req?.body?.order_status,
+      product_id: parseInt(req?.body?.productId),
+      user_id: parseInt(req?.body?.userId),
+      order_quantity: parseInt(req?.body?.orderQuantity),
+      order_status: (req?.body?.orderStatus),
       updated_time: getDateTimeNowLocalISOString(),
     };
 
@@ -211,7 +211,6 @@ export const deleteOrder = async (req, res) => {
       });
       return;
     }
-
     result = await orderDao.deleteOrder(model);
     res.json({
       message: "Deleted order successfully!",
