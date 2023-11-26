@@ -40,7 +40,10 @@ export const register = async (req, res) => {
         [email],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result[0]);
           }
@@ -67,7 +70,10 @@ export const register = async (req, res) => {
           },
           (error, results) => {
             if (error) {
-              reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+              reject({
+                message: "Database error!",
+                status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+              });
             } else {
               resolve(results);
             }
@@ -120,7 +126,10 @@ export const login = async (req, res) => {
         [email],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!" ,status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE});
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result);
           }
@@ -144,7 +153,10 @@ export const login = async (req, res) => {
           [userToken, email],
           (err, result) => {
             if (err) {
-              reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+              reject({
+                message: "Database error!",
+                status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+              });
             } else {
               resolve(result);
             }
@@ -199,7 +211,10 @@ export const getUser = async (req, res) => {
         [decoded.id, decoded.token],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result);
           }
@@ -230,9 +245,6 @@ export const getUser = async (req, res) => {
     dbConnection.end();
   }
 };
-
-
-
 
 export const passwordReset = async (req, res) => {
   const storedToken = req.headers.token;
@@ -274,7 +286,10 @@ export const passwordReset = async (req, res) => {
         [decoded.id, decoded.token],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result);
           }
@@ -282,8 +297,14 @@ export const passwordReset = async (req, res) => {
       );
     });
 
-    if (!result.length || !(await bcrypt.compare(currentPassword, result[0].password))) {
-      return res.json({ message: "Incorrect Entries!", status: STATUS_CODES.BAD_REQUEST_CODE });
+    if (
+      !result.length ||
+      !(await bcrypt.compare(currentPassword, result[0].password))
+    ) {
+      return res.json({
+        message: "Incorrect Entries!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -293,7 +314,10 @@ export const passwordReset = async (req, res) => {
         [hashedPassword, decoded.id],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result);
           }
@@ -307,13 +331,11 @@ export const passwordReset = async (req, res) => {
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
-
-
     // Handling JWT Token Decoding Error
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({
-      message: "Unauthorized: Invalid or Expired Token!",
-      status: STATUS_CODES.UNAUTHORIZED_CODE,
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
 
@@ -322,36 +344,95 @@ export const passwordReset = async (req, res) => {
       status: error.status || 500,
       message: error.message || "Internal server error!",
     });
-  } 
-    
-  
+  }
 };
 
-  
 export const updateUsername = async (req, res) => {
   const storedToken = req.headers.token;
-  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-  const username = req.body.username;
 
-  // Validation check
-  if (!username) {
-    return res.json({
-      message: "Username cannot be empty!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    const newUsername = req.body.username;
+
+    // Validation check for empty username
+    if (!newUsername) {
+      return res.json({
+        message: "Username cannot be empty!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+
+    // Querying the database to find the current username
+    const currentUser = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "SELECT username FROM users WHERE id = ? AND token = ?",
+        [decoded.id, decoded.token],
+        (err, result) => {
+          if (err) {
+            reject({
+              message: "Database query error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+
+    // Check if the new username is the same as the current username
+    if (currentUser.length > 0 && currentUser[0].username === newUsername) {
+      dbConnection.end();
+      return res.json({
+        message: "New username cannot be the same as the current username!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    dbConnection.connect();
+    // Updating the username in the database
+    const updateResult = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "UPDATE users SET username = ? WHERE id = ?",
+        [newUsername, decoded.id],
+        (err, result) => {
+          if (err) {
+            reject({
+              message: "Username update error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+    dbConnection.end();
+
+    if (updateResult) {
+      return res.json({
+        message: "Username updated successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }
+  } catch (error) {
+    // Handling JWT Token Decoding Error
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+
+    // Generic error handling
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
     });
   }
-
-  const dbConnection = mysql.createConnection(dbConfig);
-  dbConnection.connect();
-  dbConnection.query(
-    "UPDATE users SET ? WHERE id = ?",
-    [{ username }, decoded.id],
-    async (err, result) => {
-      if (err) throw res.json({ message: "Username update error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
-      if (result) return res.json({ message: "Username updated successfully!", status: STATUS_CODES.SUCCESS_CODE });
-    }
-  );
-  dbConnection.end();
 };
 
 export const updateProfileImage = async (req, res) => {
@@ -372,13 +453,21 @@ export const updateProfileImage = async (req, res) => {
     "UPDATE users SET ? WHERE id = ?",
     [{ profile_image }, decoded.id],
     async (err, result) => {
-      if (err) throw res.json({ message: "Profile image update error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
-      if (result) return res.json({ message: "Profile image updated successfully! ", status: STATUS_CODES.SUCCESS_CODE });
+      if (err)
+        throw res.json({
+          message: "Profile image update error!",
+          status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+        });
+      if (result)
+        return res.json({
+          message: "Profile image updated successfully! ",
+          status: STATUS_CODES.SUCCESS_CODE,
+        });
     }
   );
   dbConnection.end();
 };
-  
+
 export const deleteAccount = async (req, res) => {
   const storedToken = req.headers.token;
 
@@ -393,7 +482,10 @@ export const deleteAccount = async (req, res) => {
         [decoded.id, decoded.token],
         (err, result) => {
           if (err) {
-            reject({ message: "Database error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+            reject({
+              message: "Database error!",
+              status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+            });
           } else {
             resolve(result);
           }
@@ -402,7 +494,10 @@ export const deleteAccount = async (req, res) => {
     });
     dbConnection.end();
     if (result.affectedRows > 0) {
-      return res.json({ message: "Account Deleted Successfully!", status: STATUS_CODES.SUCCESS_CODE });
+      return res.json({
+        message: "Account Deleted Successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
     }
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -417,7 +512,4 @@ export const deleteAccount = async (req, res) => {
       message: error.message || "Internal server error!",
     });
   }
-    
 };
-
-
