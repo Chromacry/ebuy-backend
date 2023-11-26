@@ -5,14 +5,15 @@ import {
   login,
   getUser,
   deleteAccount,
-  passwordReset
+  passwordReset,
+  updateUsername,
 } from "../src/controllers/UserController.mjs";
 
-describe("UserController", function() {
+describe("UserController", function () {
   this.timeout(0);
   let mockReq, mockRes, response, status, token;
-  let invalidToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvZSBCbG9nZ3MiLCJpYXQiOjE1MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-
+  let invalidToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvZSBCbG9nZ3MiLCJpYXQiOjE1MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
   beforeEach(() => {
     response = {};
@@ -180,69 +181,131 @@ describe("UserController", function() {
   });
 
   describe("resetPassword", () => {
-  it('should require all fields', async () => {
-    mockReq.headers = { token: token };
-    mockReq.body = { currentPassword: "mochaTest1234", newPassword: "newPassword2", confirmPassword:"" };
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "All fields are required!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
+    it("should require all fields", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "mochaTest1234",
+        newPassword: "newPassword2",
+        confirmPassword: "",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "All fields are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should require new password and confirm password to match", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "mochaTest1234",
+        newPassword: "newPassword2",
+        confirmPassword: "differentNewPassword",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "New password and confirm password do not match!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should not allow new password to be the same as current password", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "mochaTest1234",
+        newPassword: "mochaTest1234",
+        confirmPassword: "mochaTest1234",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "New password must be different from the current password!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    // Test case for successful password reset
+    // Note: This test assumes a successful flow and does not mock database or bcrypt functions.
+    it("should reset the password successfully", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "mochaTest1234",
+        newPassword: "newPassword",
+        confirmPassword: "newPassword",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Password Reset Successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+
+    it("reverting back to old password for testing purposes (IGNORE)", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "newPassword",
+        newPassword: "mochaTest1234",
+        confirmPassword: "mochaTest1234",
+      };
+      // Assume the password comparison and database update are successful
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Password Reset Successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+    // Test case for invalid/expired token
+    it("should return an error for invalid or expired token", async () => {
+      mockReq.headers = { token: invalidToken };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
     });
   });
 
-  it('should require new password and confirm password to match', async () => {
-    mockReq.headers = { token: token };
-    mockReq.body = { currentPassword: "mochaTest1234", newPassword: "newPassword2", confirmPassword: "differentNewPassword" };
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "New password and confirm password do not match!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
+  describe("updateUsername", () => {
+    it("should require a username", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = { username: "" };
+      await updateUsername(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Username cannot be empty!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     });
-  });
 
-  it('should not allow new password to be the same as current password', async () => {
-    mockReq.headers = { token: token };
-    mockReq.body = { currentPassword: "mochaTest1234", newPassword: "mochaTest1234", confirmPassword: "mochaTest1234" };
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "New password must be different from the current password!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
+    it("should not allow the same new and current username", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = { username: "mochaTest" }; // Assume "currentUsername" is the current username in DB
+      // Mock the database response to simulate the current username
+      await updateUsername(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "New username cannot be the same as the current username!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     });
-  });
 
-  // Test case for successful password reset
-  // Note: This test assumes a successful flow and does not mock database or bcrypt functions.
-  it('should reset the password successfully', async () => {
-    mockReq.headers = { token: token };
-    mockReq.body = { currentPassword: "mochaTest1234", newPassword: "newPassword", confirmPassword: "newPassword" };
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "Password Reset Successfully!",
-      status: STATUS_CODES.SUCCESS_CODE,
+    it("should update the username successfully", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = { username: "mochaTest2" };
+      // Mock the database response to simulate successful update
+      await updateUsername(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Username updated successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
     });
-  });
 
-  it('reverting back to old password for testing purposes (IGNORE)', async () => {
-    mockReq.headers = { token: token };
-    mockReq.body = { currentPassword: "newPassword", newPassword: "mochaTest1234", confirmPassword: "mochaTest1234" };
-    // Assume the password comparison and database update are successful
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "Password Reset Successfully!",
-      status: STATUS_CODES.SUCCESS_CODE,
+    it("should return an error for invalid or expired token", async () => {
+      mockReq.headers = { token: invalidToken };
+      await updateUsername(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
     });
   });
-  // Test case for invalid/expired token
-  it('should return an error for invalid or expired token', async () => {
-    mockReq.headers = { token: invalidToken };
-    await passwordReset(mockReq, mockRes);
-    expect(response).to.deep.include({
-      message: "Unauthorized: Invalid or Expired Token!",
-      status: STATUS_CODES.UNAUTHORIZED_CODE,
-    });
-  });
-});
-
   describe("deleteAccount", () => {
     it("should delete a user account successfully", async () => {
       mockReq.headers = { token: token };
@@ -253,7 +316,7 @@ describe("UserController", function() {
       });
     });
     it("should return an error for invalid or expired token with user not found error ", async () => {
-      mockReq.headers = {token: invalidToken};
+      mockReq.headers = { token: invalidToken };
       // Mock JWT verification to throw an error or return invalid
       await deleteAccount(mockReq, mockRes);
       expect(response).to.deep.include({
