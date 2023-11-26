@@ -4,6 +4,7 @@ import { STATUS_CODES } from "../src/constants/GlobalConstants.mjs";
 
 import {
   addProduct,
+  deleteProduct,
   getAllProducts,
   getProduct,
   updateProduct,
@@ -441,6 +442,137 @@ describe("Get Product Controller", async () => {
       await getAllProducts(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Successfully retrieved all products!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+  });
+});
+
+describe("Delete Product Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Delete Product - Check RequestBody Fields", () => {
+    it("should return a response when id field is empty!", async () => {
+      mockReq.query = {
+        sellerId: 0,
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when id field is not an integer but letters!", async () => {
+      mockReq.query = {
+        id: "a",
+        sellerId: 0,
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when id field an integer but string!", async () => {
+      mockReq.query = {
+        id: "1",
+        sellerId: 1,
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when sellerId field is empty!", async () => {
+      mockReq.query = {
+        id: 1,
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "sellerId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when sellerId field is not an integer but letters!", async () => {
+      mockReq.query = {
+        id: 1,
+        sellerId: "a",
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "sellerId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when sellerId field an integer but string!", async () => {
+      mockReq.query = {
+        id: 1,
+        sellerId: "1",
+      };
+
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+  });
+
+
+
+  describe("Delete Product - Deleting of product", () => {
+    it("should return a response when product does not exist!", async () => {
+      mockReq.query = {
+        id: 1,
+        sellerId: 1,
+      };
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }).timeout(0);
+
+    it("should return a response when product is retrieved successfully!", async () => {
+      mockReq.query = {
+        id: 30,
+        sellerId: 12,
+      };
+      await deleteProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Deleted product successfully!",
         data: response?.data,
         status: STATUS_CODES.SUCCESS_CODE,
       });
