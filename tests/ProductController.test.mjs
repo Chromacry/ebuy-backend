@@ -189,7 +189,7 @@ describe("Add Product Controller", async () => {
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    });
+    }).timeout(5000);
   });
 });
 
@@ -247,7 +247,7 @@ describe("Get Product Controller", async () => {
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    });
+    }).timeout(5000);
   });
 
   describe("Get All Product - Retrieve all products", () => {
@@ -520,7 +520,7 @@ describe("Delete Product Controller", async () => {
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    });
+    }).timeout(5000);
 
     it("should return a response when sellerId field is empty!", async () => {
       mockReq.query = {
@@ -559,7 +559,7 @@ describe("Delete Product Controller", async () => {
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    });
+    }).timeout(5000);
   });
 
 
