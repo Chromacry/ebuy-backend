@@ -111,13 +111,13 @@ export const getOrders = async (req, res) => {
       res.json({
         message: "Order does not exist!",
         data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
       return;
     }
 
     res.json({
-      message: "Successfully retrieved order!",
+      message: "Successfully retrieved all order!",
       data: result,
       status: STATUS_CODES.SUCCESS_CODE,
     });

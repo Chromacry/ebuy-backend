@@ -110,6 +110,84 @@ describe("Add Order Controller", async () => {
   });
 });
 
+describe("Get Order Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Get Order - Check RequestBody Fields", () => {
+    it("should return a response when id field is empty!", async () => {
+      mockReq.query = {};
+
+      await getOrders(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+  });
+
+  describe("Get All Order - Retrieve all orders", () => {
+    it("should return a response when all orders retrieved successfully!", async () => {
+      mockReq.body = {};
+      await getAllOrders(mockReq, mockRes);
+      
+      //* Find for unit test added product by name and save it
+      const unitTestData = response?.data.find(item => item.id === "Unit Testing Workbench");
+      orderModel = new Order(unitTestData?.id, unitTestData?.seller_id)
+
+      expect(response).to.deep.include({
+        message: "Successfully retrieved all orders!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+  });
+
+
+  describe("Get Order - Retrieve one order", () => {
+    it("should return a response when order does not exist!", async () => {
+      mockReq.query = {
+        id: 1,
+      };
+      await getOrders(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Order does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }).timeout(0);
+
+    it("should return a response when order is retrieved successfully!", async () => {
+      mockReq.query = {
+        id: 30,
+      };
+      await getOrders(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Successfully retrieved all order!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+  });
+
+});
+
 describe("Delete Order Controller", async () => {
   let mockReq, mockRes, response;
 
