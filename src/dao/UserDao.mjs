@@ -4,40 +4,146 @@ import dbConfig from "../utils/DBConfig.mjs";
 const dbTableName = "users";
 
 export class UserDao {
-  getUserById(model) {
+  async checkEmailExists(model) {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT username, email, profile_image, id, created_time FROM ${dbTableName} WHERE id = ?`;
-      dbConnection.query(
-        sql,
-        [model.getId()],
-        (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(results);
-          }
-        });
-        dbConnection.end();
+      const sql = `SELECT * FROM ${dbTableName} WHERE email = ?`;
+      dbConnection.query(sql, [model.getEmail()], (error, results) => {
+        
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.length > 0);
+        }
+      });
+      dbConnection.end();
     });
   }
-  getUserBySellerId(model) {
+  async addUser(model) {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT username, email, profile_image, id, created_time FROM ${dbTableName} WHERE id = ? AND is_seller = ?`;
-      dbConnection.query(
-        sql,
-        [model.getId(), model.getIsSeller()],
-        (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(results);
-          }
-        });
-        dbConnection.end();
+      const sql = `INSERT INTO ${dbTableName} SET ?`;
+      const userData = {
+        username: model.getUsername(),
+        email: model.getEmail(),
+        password: model.getPassword(),
+      };
+      dbConnection.query(sql, userData, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async getUserByEmail(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `SELECT * FROM ${dbTableName} WHERE email = ?`;
+      dbConnection.query(sql, [model.getEmail()], (error, results) => {
+        
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async updateUserToken(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET token = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getToken(), model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async getUserByIdAndToken(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND token = ?`;
+      dbConnection.query(sql, [model.getId(), model.getToken()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results)
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async updateUserPassword(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET password = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getPassword(), model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async updateUsername(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET username = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getUsername(), model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async updateProfileImage(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET profile_image = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getProfileImage(), model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async deleteUser(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `DELETE FROM ${dbTableName} WHERE id = ? AND token = ?`;
+      dbConnection.query(sql, [model.getId(), model.getToken()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
     });
   }
 }
