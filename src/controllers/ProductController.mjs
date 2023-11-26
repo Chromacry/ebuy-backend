@@ -1,8 +1,12 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { ProductDao } from "../dao/ProductDao.mjs";
 import { Product } from "../models/ProductModel.mjs";
+import { UserDao } from "../dao/UserDao.mjs";
+import { User } from "../models/UserModel.mjs"
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import { ProductValidations } from "../utils/RequestBodyValidationUtil.mjs";
+
+const userDao = new UserDao();
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
 
@@ -93,6 +97,7 @@ export const addProduct = async (req, res) => {
       null,
       body?.created_time
     );
+    
     //* Check if product already exists
     result = await productDao.getProductByProductNameAndSellerId(model);
     if (result.length >= 1) {
@@ -103,6 +108,21 @@ export const addProduct = async (req, res) => {
       });
       return;
     }
+
+    const userModel = new User(body?.seller_id);
+    
+    //* Check if seller_id exists
+    result = await userDao.getUserBySellerId(userModel)
+    if (result.length < 1) {
+      res.json({
+        message: "Seller does not exist!",
+        data: result,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
+    }
+
+    //* Add new product
     result = await productDao.addProduct(model)
     res.json({
       message: "Added product successfully!",
