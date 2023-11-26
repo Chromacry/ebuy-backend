@@ -7,4 +7,3 @@ jobs:
       - run: npm --version
       - uses: actions/checkout@v4
       - run: npm install 
-      - run: node app.js
