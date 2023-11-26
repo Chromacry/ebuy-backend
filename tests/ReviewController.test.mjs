@@ -9,7 +9,9 @@ import {
   updateReview,
 } from "../src/controllers/ReviewController.mjs";
 
-describe("Add Product Controller", async () => {
+let reviewModel;
+
+describe("Add Review Controller", async () => {
   let mockReq, mockRes, response;
 
   beforeEach(() => {
@@ -106,7 +108,7 @@ describe("Add Product Controller", async () => {
     });
   });
 
-  describe("Add Review - Adding of product", async () => {
+  describe("Add Review - Adding of Review", async () => {
     it("Return response when product added successfully!", async () => {
       mockReq.body = {
         user_id: 13,
@@ -121,6 +123,66 @@ describe("Add Product Controller", async () => {
         data: response?.data,
         status: STATUS_CODES.SUCCESS_CODE,
       });
+    }).timeout(10000);
+  });
+});
+
+describe("Get Reviews Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Get Review - Check RequestBody Fields", () => {
+    it("should return a response when product_id field is empty!", async () => {
+      mockReq.query = {};
+
+      await getProductReviews(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     });
+
+    it("should return a response when id field is not an integer but letters!", async () => {
+      mockReq.query = {
+        id: "a",
+      };
+
+      await getProductReviews(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+  });
+
+  describe("Get Review - Getting of Reviews", () => {
+    it("Return response when review is retrieved successfully!", async () => {
+      mockReq.query = {
+        id:2,
+      };
+
+      await getProductReviews(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Review retrieved successfully!",
+        data:response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
   });
 });
