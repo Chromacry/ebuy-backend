@@ -7,6 +7,7 @@ import {
   deleteAccount,
   passwordReset,
   updateUsername,
+  updateProfileImage
 } from "../src/controllers/UserController.mjs";
 
 describe("UserController", function () {
@@ -91,7 +92,6 @@ describe("UserController", function () {
       });
     });
   });
-
   describe("login", () => {
     it("should return an error for missing email or password", async () => {
       mockReq.body = {
@@ -144,7 +144,6 @@ describe("UserController", function () {
       token = response.token;
     });
   });
-
   describe("getUser", () => {
     it("should return an error if token is not provided", async () => {
       mockReq.headers = {};
@@ -179,7 +178,6 @@ describe("UserController", function () {
       });
     });
   });
-
   describe("resetPassword", () => {
     it("should require all fields", async () => {
       mockReq.headers = { token: token };
@@ -263,7 +261,6 @@ describe("UserController", function () {
       });
     });
   });
-
   describe("updateUsername", () => {
     it("should require a username", async () => {
       mockReq.headers = { token: token };
@@ -305,6 +302,37 @@ describe("UserController", function () {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     });
+  });
+  describe("updateProfileImage", () => {
+    it('should require a profile image', async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {};
+      await updateProfileImage(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Profile image cannot be empty!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+    it('should update the profile image successfully', async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = { profileImg: "newImage.jpg" };
+      // Mock the database response to simulate successful update
+      await updateProfileImage(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Profile image updated successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+    it('should return an error for invalid or expired token', async () => {
+      mockReq.headers = { token: invalidToken };
+      await updateProfileImage(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    });
+
+    // Additional test cases for database errors or other scenarios...
   });
   describe("deleteAccount", () => {
     it("should delete a user account successfully", async () => {
