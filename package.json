@@ -4,12 +4,37 @@
   "type": "module",
   "description": "",
   "main": "src/index.mjs",
+  "c8": {
+    "include": [
+      "src/**/*.mjs"
+    ],
+    "exclude": [
+      "tests/*.mjs",
+      "src/routes/*.mjs",
+      "src/index.mjs"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary",
+      "text",
+      "html",
+      "cobertura"
+    ],
+    "check-coverage": true,
+    "all": true,
+    "branches": 80,
+    "lines": 80,
+    "functions": 80,
+    "statements": 80
+  },
   "scripts": {
-    "test:userController": "mocha 'tests/UserController.test.mjs'",
-    "test:reviewController": "mocha 'tests/ReviewController.test.mjs'",
-    "test:productController": "mocha 'tests/ProductController.test.mjs'",
-    "test:orderController": "mocha 'tests/OrderController.test.mjs'",
-    "start": "nodemon src/index.mjs",
+    "test:userController": "c8 mocha 'tests/UserController.test.mjs'",
+    "test:reviewController": "c8 mocha 'tests/ReviewController.test.mjs'",
+    "test:productController": "c8 mocha tests/ProductController.test.mjs",
+    "test:orderController": "c8 mocha 'tests/OrderController.test.mjs'",
+    "coverage": "c8 mocha tests/*.test.mjs",
+    "test": "mocha tests/*.test.mjs",
+    "start": "node src/index.mjs",
     "dev": "nodemon"
   },
   "keywords": [],
@@ -26,6 +51,7 @@
     "nyc": "^15.1.0"
   },
   "devDependencies": {
+    "c8": "^8.0.1",
     "chai": "^4.3.10",
     "mocha": "^10.2.0"
   }
