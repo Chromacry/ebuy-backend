@@ -13,6 +13,118 @@ import { Order } from "../src/models/OrderModel.mjs";
 
 let orderModel;
 
+describe("Add Order Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Add Order - Check RequestBody Fields", async () => {
+    it("should return a response when productId field is empty!", () => {
+      mockReq.body = {
+        productId:"",
+        userId: 14,
+        orderQuantity:2,
+        orderStatus: "Delivered",
+      };
+
+      addOrder(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Invalid product_id! Product do not exist.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when userId field is empty!", () => {
+      mockReq.body = {
+        productId: 2,
+        orderQuantity: 2,
+        orderStatus: "Delivered",
+      };
+
+      addOrder(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Invalid user_id! User do not exist.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when orderQuantity field is empty!", () => {
+      mockReq.body = {
+        productId: 12,
+        userId: 14,
+        orderStatus: "Delivered",
+      };
+
+      addOrder(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message:"Invalid order_quantity! It should not be empty",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when orderStatus field is empty!", () => {
+      mockReq.body = {
+        productId: 12,
+        userId: 14,
+        orderQuantity: 2,
+      };
+
+      addOrder(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Invalid order_status! It should be a non-empty string.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+  });
+
+  describe("Add Order - Adding of order", async () => {
+    // it("should return a response when OrderId don't exist!", async () => {
+    //   mockReq.body = {
+    //     productId: 12,
+    //     userId: 14,
+    //     orderStatus: "Delivered",
+    //     orderQuantity: 2,
+    //   };
+    //   await addProduct(mockReq, mockRes);
+    //   expect(response).to.deep.include({
+    //     message: "Seller does not exist!",
+    //     data: response?.data,
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   });
+    // }).timeout(5000)
+
+    it("should return a response when product added successfully!", async () => {
+      mockReq.body = {
+        productId: 2,
+        userId: 14,
+        orderQuantity: 2,
+        orderStatus: "Delivered",
+      };
+      await addOrder(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Added Order successfully!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(10000)
+  });
+});
+
 describe("Delete Order Controller", async () => {
   let mockReq, mockRes, response;
 
@@ -91,7 +203,7 @@ describe("Delete Order Controller", async () => {
     // done
     it("should return a response when order is deleted successfully!", async () => {
       mockReq.query = {
-        id: 21,
+        id: 22,
         userId: 14,
         productId: 2,
       };
@@ -104,3 +216,5 @@ describe("Delete Order Controller", async () => {
     }).timeout(0);
   });
 });
+
+

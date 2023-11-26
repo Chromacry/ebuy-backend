@@ -122,7 +122,7 @@ export class OrderValidations {
       body?.order_quantity <= 0
     ) {
       return{
-        message: "Invalid order_quantity! It should be a positive integer.",
+        message: "Invalid order_quantity! It should not be empty",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
