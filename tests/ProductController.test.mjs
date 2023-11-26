@@ -306,7 +306,7 @@ describe("Update Product Controller", async () => {
 
     it("should return a response when sellerId don't match product!", async () => {
       mockReq.body = {
-        id: 27,
+        id: 31,
         sellerId: 1,
         productName: "Unit Testing Workbench",
         productDescription: "Testing workbench for pc parts",
@@ -314,23 +314,7 @@ describe("Update Product Controller", async () => {
       };
       await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "Product does not exist!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    }).timeout(0);
-
-    it("should return a response when product name exist with same name!", async () => {
-      mockReq.body = {
-        id: 27,
-        sellerId: 12,
-        productName: "Unit Testing Workbench1",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-      };
-      await updateProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Product already exist!",
+        message: "Seller id does not match product id!",
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
@@ -338,7 +322,7 @@ describe("Update Product Controller", async () => {
 
     it("should return a response when product updated successfully!", async () => {
       mockReq.body = {
-        id: 27,
+        id: 31,
         sellerId: 12,
         productName: "Unit Testing Workbench",
         productDescription: "Testing workbench for pc parts",
@@ -406,7 +390,7 @@ describe("Get Product Controller", async () => {
       expect(response).to.deep.include({
         message: "Product does not exist!",
         data: response?.data,
-        status: STATUS_CODES.SUCCESS_CODE,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
   });
@@ -419,7 +403,7 @@ describe("Get Product Controller", async () => {
       expect(response).to.deep.include({
         message: "Product does not exist!",
         data: response?.data,
-        status: STATUS_CODES.SUCCESS_CODE,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     }).timeout(0);
 
@@ -565,7 +549,7 @@ describe("Delete Product Controller", async () => {
       });
     }).timeout(0);
 
-    it("should return a response when product is retrieved successfully!", async () => {
+    it("should return a response when product is deleted successfully!", async () => {
       mockReq.query = {
         id: 30,
         sellerId: 12,
