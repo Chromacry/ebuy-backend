@@ -11,7 +11,7 @@ import {
 } from "../src/controllers/UserController.mjs";
 
 describe("UserController", function () {
-  this.timeout(0);
+  this.timeout(4000);
   let mockReq, mockRes, response, status, token;
 
   let username = "testuser";
@@ -280,7 +280,6 @@ describe("UserController", function () {
     it("should update the username successfully", async () => {
       mockReq.headers = { token: token };
       mockReq.body = { username: "mochaTest2" };
-      // Mock the database response to simulate successful update
       await updateUsername(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Username updated successfully!",
@@ -290,6 +289,7 @@ describe("UserController", function () {
 
     it("should return an error for invalid or expired token", async () => {
       mockReq.headers = { token: invalidToken };
+      mockReq.body = { username: "mochaTest2" };
       await updateUsername(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Unauthorized: Invalid or Expired Token!",
@@ -310,7 +310,6 @@ describe("UserController", function () {
     it('should update the profile image successfully', async () => {
       mockReq.headers = { token: token };
       mockReq.body = { profileImg: "newImage.jpg" };
-      // Mock the database response to simulate successful update
       await updateProfileImage(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Profile image updated successfully!",
