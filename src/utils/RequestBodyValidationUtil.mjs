@@ -172,27 +172,34 @@ export class OrderValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.product_id || !Number.isInteger(body?.product_id)) {
-      return {
-        message: "ProductId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
     if (!body?.user_id || !Number.isInteger(body?.user_id)) {
       return {
         message: "UserId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
+    if (!body?.product_id || !Number.isInteger(body?.product_id)) {
+      return {
+        message: "ProductId field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (!body?.id == null){
+      return{
+        message: "Order does not exist!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      }
+    }
   }
 
   getOrderValidator(body) {
     //* Validation Check
-    if (!body?.id && Number.isInteger(body?.id)) {
+    if (!body?.id || !Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
-      }
+      };
     }
+    return null;
   }
 }

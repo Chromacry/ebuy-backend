@@ -8,6 +8,7 @@
     "test:userController": "mocha 'tests/UserController.test.mjs'",
     "test:reviewController": "mocha 'tests/ReviewController.test.mjs'",
     "test:productController": "mocha 'tests/ProductController.test.mjs'",
+    "test:orderController": "mocha 'tests/OrderController.test.mjs'",
     "start": "nodemon src/index.mjs",
     "dev": "nodemon"
   },

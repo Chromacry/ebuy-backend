@@ -164,8 +164,8 @@ export const deleteOrder = async (req, res) => {
 
     const body = {
       id: parseInt(req?.query?.id),
-      product_id: parseInt(req?.query?.product_id),
-      user_id: parseInt(req?.query?.user_id),
+      product_id: parseInt(req?.query?.productId),
+      user_id: parseInt(req?.query?.userId),
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = orderValidations.deleteOrderValidator(body);
