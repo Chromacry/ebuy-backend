@@ -112,7 +112,7 @@ export const addProduct = async (req, res) => {
     const userModel = new User(body?.seller_id);
     
     //* Check if seller_id exists
-    result = await productDao.getUserBySellerId(userModel)
+    result = await userDao.getUserBySellerId(userModel)
     if (result.length < 1) {
       res.json({
         message: "Seller does not exist!",
