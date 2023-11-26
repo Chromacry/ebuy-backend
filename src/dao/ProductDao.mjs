@@ -84,6 +84,25 @@ export class ProductDao {
     });
   }
 
+  getProductByIdAndSellerId(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `SELECT * FROM ${dbTableName} WHERE id = ? and seller_id = ?`;
+      dbConnection.query(
+        sql,
+        [model.getId(), model.getSellerId()],
+        (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+        dbConnection.end();
+    });
+  }
+
   deleteProduct(model) {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);

@@ -222,18 +222,30 @@ export const updateProduct = async (req, res) => {
       return;
     }
 
-      //* Check if product name exists, to avoid duplicates
-    result = await productDao.getProductByProductNameAndSellerId(model)
-    if (result.length >= 1) {
+    //* Check if product Id matches sellerId exist
+    result = await productDao.getProductByIdAndSellerId(model)
+    if (result.length < 1) {
       res.json({
-        message: "Product already exist!",
+        message: "Seller id does not match product id!",
         data: result,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
       return;
     }
 
+    //* Check if product name exists, to avoid duplicates
+    // result = await productDao.getProductByProductNameAndSellerId(model)
+    // if (result.length >= 1) {
+    //   res.json({
+    //     message: "Product already exist!",
+    //     data: result,
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   });
+    //   return;
+    // }
+
     result = await productDao.updateProduct(model)
+    if (result)
     res.json({
       message: "Updated product successfully!",
       data: result,
