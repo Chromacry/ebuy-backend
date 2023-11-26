@@ -437,36 +437,61 @@ export const updateUsername = async (req, res) => {
 
 export const updateProfileImage = async (req, res) => {
   const storedToken = req.headers.token;
-  const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
-  const profile_image = req.body.profileImg;
 
-  // Validation check
-  if (!profile_image) {
-    return res.json({
-      message: "Profile image cannot be empty!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
+  try {
+    const decoded = await jwt.verify(storedToken, process.env.JWT_SECRET);
+    const profile_image = req.body.profileImg;
+
+    // Validation check
+    if (!profile_image) {
+      return res.json({
+        message: "Profile image cannot be empty!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    const dbConnection = mysql.createConnection(dbConfig);
+    dbConnection.connect();
+
+    const result = await new Promise((resolve, reject) => {
+      dbConnection.query(
+        "UPDATE users SET ? WHERE id = ?",
+        [{ profile_image }, decoded.id],
+        (err, result) => {
+          if (err) {
+            reject({ message: "Profile image update error!", status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE });
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    });
+
+    dbConnection.end();
+
+    if (result) {
+      return res.json({
+        message: "Profile image updated successfully!",
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }
+  } catch (error) {
+    // Handling JWT Token Decoding Error
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+
+    // Generic error handling
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
     });
   }
-  const dbConnection = mysql.createConnection(dbConfig);
-  dbConnection.connect();
-  dbConnection.query(
-    "UPDATE users SET ? WHERE id = ?",
-    [{ profile_image }, decoded.id],
-    async (err, result) => {
-      if (err)
-        throw res.json({
-          message: "Profile image update error!",
-          status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
-        });
-      if (result)
-        return res.json({
-          message: "Profile image updated successfully! ",
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
-    }
-  );
-  dbConnection.end();
 };
+
 
 export const deleteAccount = async (req, res) => {
   const storedToken = req.headers.token;
