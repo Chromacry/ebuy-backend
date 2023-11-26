@@ -43,11 +43,35 @@ describe("UserController", function () {
   });
 
   describe("register", () => {
-    it("should return an error for missing required fields", async () => {
+    it("should return an error for missing required fields! (username)", async () => {
       mockReq.body = {
         username: "",
         email: email,
         password: password,
+      };
+      await register(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Username, email, and password are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+    it("should return an error for missing required fields! (email)", async () => {
+      mockReq.body = {
+        username: username,
+        email: "",
+        password: password,
+      };
+      await register(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Username, email, and password are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+    it("should return an error for missing required fields! (password)", async () => {
+      mockReq.body = {
+        username: username,
+        email: email,
+        password: "",
       };
       await register(mockReq, mockRes);
       expect(response).to.deep.include({
