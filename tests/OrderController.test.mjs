@@ -93,21 +93,6 @@ describe("Add Order Controller", async () => {
   });
 
   describe("Add Order - Adding of order", async () => {
-    // it("should return a response when OrderId don't exist!", async () => {
-    //   mockReq.body = {
-    //     productId: 12,
-    //     userId: 14,
-    //     orderStatus: "Delivered",
-    //     orderQuantity: 2,
-    //   };
-    //   await addProduct(mockReq, mockRes);
-    //   expect(response).to.deep.include({
-    //     message: "Seller does not exist!",
-    //     data: response?.data,
-    //     status: STATUS_CODES.BAD_REQUEST_CODE,
-    //   });
-    // }).timeout(5000)
-
     it("should return a response when product added successfully!", async () => {
       mockReq.body = {
         productId: 2,
