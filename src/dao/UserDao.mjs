@@ -146,4 +146,21 @@ export class UserDao {
       dbConnection.end();
     });
   }
+  //* Added by Goh Zong Xian
+  async getUserBySellerId(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND is_seller = 1`;
+      dbConnection.query(sql, [model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  //* Added by Goh Zong Xian
 }
