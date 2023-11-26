@@ -45,7 +45,7 @@ export const getProduct = async (req, res) => {
       res.json({
         message: "Product does not exist!",
         data: result,
-        status: STATUS_CODES.SUCCESS_CODE,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
       });
       return  
     }
