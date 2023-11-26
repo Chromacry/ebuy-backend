@@ -69,10 +69,10 @@ export class ProductDao {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND seller_id = ?`;
+      const sql = `SELECT * FROM ${dbTableName} WHERE id = ?`;
       dbConnection.query(
         sql,
-        [model.getId(), model.getSellerId()],
+        [model.getId()],
         (error, results) => {
           if (error) {
             reject(error);
