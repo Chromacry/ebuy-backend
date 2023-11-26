@@ -186,3 +186,104 @@ describe("Get Reviews Controller", async () => {
     }).timeout(0);
   });
 });
+
+
+
+
+
+describe("Update Review Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Update Review - Check RequestBody Fields", () => {
+    it("should return a response when id field is empty!", async () => {
+      mockReq.body = {
+        rating:1,
+        content:"Unit Testing Content",
+        review_image: "/image/workbench.jpg",
+      };
+
+      await updateReview(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when rating field is empty!", async () => {
+      mockReq.body = {
+        id: 13,
+        content:"Unit Testing Content",
+        review_image: "/image/workbench.jpg",
+      };
+
+      await updateReview(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "reviewRating field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when content field is not integer!", async () => {
+      mockReq.body = {
+        id: 13,
+        rating:1,
+        review_image: "/image/workbench.jpg",
+      };
+
+      await updateReview(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "reviewContent field required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when productName field is empty!", async () => {
+      mockReq.body = {
+        id: 13,
+        rating:1,
+        content:"Unit Testing Content",
+      };
+
+      await updateReview(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "reviewImage field required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+  });
+
+  describe("Update Product - Updating of Review", () => {
+    it("should return a response when product updated successfully!", async () => {
+      mockReq.body = {
+        id: 33,
+        rating:3,
+        content:"Unit Testing Content Updated",
+        review_image: "/image/workbench-updated.jpg",
+      };
+      await updateReview(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Review updated successfully!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+  });
+});
+
