@@ -4,7 +4,7 @@ import { Product } from "../models/ProductModel.mjs";
 import { UserDao } from "../dao/UserDao.mjs";
 import { User } from "../models/UserModel.mjs"
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
-import { ProductValidations } from "../utils/RequestBodyValidationUtil.mjs";
+import { ProductValidations } from "../utils/ProductBodyValidationUtil.mjs";
 
 const userDao = new UserDao();
 const productDao = new ProductDao();
