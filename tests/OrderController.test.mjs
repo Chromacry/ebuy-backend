@@ -13,186 +13,6 @@ import { Order } from "../src/models/OrderModel.mjs";
 
 let orderModel;
 
-describe("Add Product Controller", async () => {
-  let mockReq, mockRes, response;
-
-  beforeEach(() => {
-    mockReq = {};
-    mockRes = {
-      json: (resObj) => {
-        response = resObj;
-      },
-      status: (code) => {
-        status = code;
-        return {
-          json: (resObj) => {
-            response = resObj;
-          },
-        };
-      },
-    };
-  });
-
-  describe("Add Product - Check RequestBody Fields", async () => {
-    it("should return a response when sellerId field is empty!", () => {
-      mockReq.body = {
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when sellerId field is not integer!", () => {
-      mockReq.body = {
-        sellerId: "12",
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productName field is empty!", () => {
-      mockReq.body = {
-        sellerId: 12,
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "productName field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productDescription field is empty!", () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "productDescription field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productImage field is empty!", () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "productImage field required!",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productQuantity field is empty!", () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "productQuantity field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productQuantity field is not integer!", () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: "1",
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "productQuantity field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-  });
-
-  describe("Add Product - Adding of product", async () => {
-    it("should return a response when sellerId don't exist!", async () => {
-      mockReq.body = {
-        sellerId: 1,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-      await addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Seller does not exist!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    }).timeout(5000)
-
-    it("should return a response when product added successfully!", async () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-      await addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Added product successfully!",
-        data: response?.data,
-        status: STATUS_CODES.SUCCESS_CODE,
-      });
-    }).timeout(10000)
-    
-    it("should return a response when product name exist when adding new product with same name!", async () => {
-      mockReq.body = {
-        sellerId: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-      await addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Product already exists!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-  });
-});
-
 describe("Delete Order Controller", async () => {
   let mockReq, mockRes, response;
 
@@ -242,7 +62,7 @@ describe("Delete Order Controller", async () => {
     it("should return a response when ProductId field is empty!", async () => {
       mockReq.query = {
         id: 1,
-        userId:1,
+        userId: 1,
       };
 
       await deleteOrder(mockReq, mockRes);
@@ -251,10 +71,7 @@ describe("Delete Order Controller", async () => {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
-
-
   });
-
 
   describe("Delete Order - Deleting of Order", () => {
     // done
