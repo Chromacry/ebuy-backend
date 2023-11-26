@@ -5,31 +5,31 @@ export class ReviewValidations {
     //* Validation Check
     if (!body?.user_id || !Number.isInteger(body?.user_id)) {
       return {
-        message: "user_id field required!, field-type: Integer",
+        message: "userId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.product_id || !Number.isInteger(body?.product_id)){
       return {
-        message: "product_id field required!, field-type: Integer",
+        message: "productId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.review_image || !body?.review_image.trim()){
       return {
-        message: "review_image field required!",
+        message: "reviewImage field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
-    if (!body?.rating || !Number.isInteger(body?.rating)){
+    if (!body?.review_rating || !Number.isInteger(body?.review_rating)){
       return {
-        message: "rating field required!, field-type: Integer",
+        message: "reviewRating field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
-    if (!body?.content || !body?.content.trim()){
+    if (!body?.review_content || !body?.review_content.trim()){
       return {
-        message: "content field required!",
+        message: "reviewContent field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
@@ -54,13 +54,13 @@ export class ReviewValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
-    if (!body?.rating || !Number.isInteger(body?.rating) || body?.rating === undefined) {
+    if (!body?.review_rating || !Number.isInteger(body?.review_rating) || body?.review_rating === undefined) {
       return {
         message: "reviewRating field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
-    if (!body?.content || !body?.content.trim()){
+    if (!body?.review_content || !body?.review_content.trim()){
       return {
         message: "reviewContent field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE
@@ -79,7 +79,7 @@ export class ReviewValidations {
     //* Validation Check
     if (!body?.product_id || !Number.isInteger(body?.product_id)) {
       return {
-        message: "id field required!, field-type: Integer",
+        message: "productId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }

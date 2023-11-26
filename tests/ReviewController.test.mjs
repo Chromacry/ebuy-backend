@@ -14,7 +14,7 @@ import {
   updateReview,
 } from "../src/controllers/ReviewController.mjs";
 
-let reviewModel;
+let testInsertId;
 
 describe("Add Review Controller", async () => {
   let mockReq, mockRes, response;
@@ -37,92 +37,93 @@ describe("Add Review Controller", async () => {
   });
 
   describe("Add Review - Check RequestBody Fields", async () => {
-    it("Return response when user_id field is empty!", () => {
+    it("Return response when userId field is empty!", () => {
       mockReq.body = {
-        content: "Unit Testing Content",
-        review_image: "/image/workbench.jpg",
-        product_id: 2,
-        rating: 1,
+        reviewContent: "Unit Testing Content",
+        reviewImage: "/image/workbench.jpg",
+        productId: 2,
+        reviewRating: 1,
       };
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "user_id field required!, field-type: Integer",
+        message: "userId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when product_id field is not integer!", () => {
+    it("Return response when productId field is not integer!", () => {
       mockReq.body = {
-        user_id: 13,
-        content: "Unit Testing Content ",
-        review_image: "/image/workbench.jpg",
-        rating: "Unit Testing Rating",
+        userId: 13,
+        reviewContent: "Unit Testing Content ",
+        reviewImage: "/image/workbench.jpg",
+        reviewRating: "Unit Testing Rating",
       };
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "product_id field required!, field-type: Integer",
+        message: "productId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when review_image field is empty!", () => {
+    it("Return response when reviewImage field is empty!", () => {
       mockReq.body = {
-        user_id: 13,
-        content: "Unit Testing Content ",
-        product_id: 2,
-        rating: 1,
+        userId: 13,
+        reviewContent: "Unit Testing Content ",
+        productId: 2,
+        reviewRating: 1,
       };
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "review_image field required!",
+        message: "reviewImage field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when rating field is empty!", () => {
+    it("Return response when reviewRating field is empty!", () => {
       mockReq.body = {
-        user_id: 13,
-        content: "Unit Testing Content ",
-        product_id: 2,
-        review_image: "/image/workbench.jpg",
+        userId: 13,
+        reviewContent: "Unit Testing Content ",
+        productId: 2,
+        reviewImage: "/image/workbench.jpg",
       };
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "rating field required!, field-type: Integer",
+        message: "reviewRating field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when content field is empty!", () => {
+    it("Return response when reviewContent field is empty!", () => {
       mockReq.body = {
-        user_id: 13,
-        rating: 1,
-        product_id: 2,
-        review_image: "/image/workbench.jpg",
+        userId: 13,
+        reviewRating: 1,
+        productId: 2,
+        reviewImage: "/image/workbench.jpg",
       };
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "content field required!",
+        message: "reviewContent field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
   });
 
   describe("Add Review - Adding of Review", async () => {
-    it("Return response when product added successfully!", async () => {
+    it("Return response when review added successfully!", async () => {
       mockReq.body = {
-        user_id: 13,
-        rating: 1,
-        content: "Unit Testing Content",
-        product_id: 2,
-        review_image: "/image/workbench.jpg",
+        userId: 13,
+        reviewRating: 1,
+        reviewContent: "Unit Testing Content",
+        productId: 2,
+        reviewImage: "/image/workbench.jpg",
       };
       await addReview(mockReq, mockRes);
+      testInsertId = response?.data.insertId;
       expect(response).to.deep.include({
         message: "Review added successfully!",
         data: response?.data,
@@ -153,24 +154,24 @@ describe("Get Reviews Controller", async () => {
   });
 
   describe("Get Review - Check RequestBody Fields", () => {
-    it("should return a response when product_id field is empty!", async () => {
+    it("should return a response when productId field is empty!", async () => {
       mockReq.query = {};
 
       await getProductReviews(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "id field required!, field-type: Integer",
+        message: "productId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("should return a response when id field is not an integer but letters!", async () => {
+    it("should return a response when productId field is not an integer but letters!", async () => {
       mockReq.query = {
-        id: "a",
+        productId: "a",
       };
 
       await getProductReviews(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "id field required!, field-type: Integer",
+        message: "productId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
@@ -179,7 +180,7 @@ describe("Get Reviews Controller", async () => {
   describe("Get Review - Getting of Reviews", () => {
     it("Return response when review is retrieved successfully!", async () => {
       mockReq.query = {
-        id: 2,
+        productId: 2,
       };
 
       await getProductReviews(mockReq, mockRes);
@@ -218,9 +219,9 @@ describe("Update Review Controller", async () => {
   describe("Update Review - Check RequestBody Fields", () => {
     it("should return a response when id field is empty!", async () => {
       mockReq.body = {
-        rating: 1,
-        content: "Unit Testing Content",
-        review_image: "/image/workbench.jpg",
+        reviewRating: 1,
+        reviewContent: "Unit Testing Content",
+        reviewImage: "/image/workbench.jpg",
       };
 
       await updateReview(mockReq, mockRes);
@@ -230,11 +231,11 @@ describe("Update Review Controller", async () => {
       });
     });
 
-    it("Should return a response when rating field is empty!", async () => {
+    it("Should return a response when reviewRating field is empty!", async () => {
       mockReq.body = {
         id: 13,
-        content: "Unit Testing Content",
-        review_image: "/image/workbench.jpg",
+        reviewContent: "Unit Testing Content",
+        reviewImage: "/image/workbench.jpg",
       };
 
       await updateReview(mockReq, mockRes);
@@ -244,11 +245,11 @@ describe("Update Review Controller", async () => {
       });
     });
 
-    it("Should return a response when content field is empty!", async () => {
+    it("Should return a response when reviewContent field is empty!", async () => {
       mockReq.body = {
         id: 13,
-        rating: 1,
-        review_image: "/image/workbench.jpg",
+        reviewRating: 1,
+        reviewImage: "/image/workbench.jpg",
       };
 
       await updateReview(mockReq, mockRes);
@@ -261,8 +262,8 @@ describe("Update Review Controller", async () => {
     it("Should return a response when reviewImage field is empty!", async () => {
       mockReq.body = {
         id: 13,
-        rating: 1,
-        content: "Unit Testing Content",
+        reviewRating: 1,
+        reviewContent: "Unit Testing Content",
       };
 
       await updateReview(mockReq, mockRes);
@@ -276,10 +277,10 @@ describe("Update Review Controller", async () => {
   describe("Update Review - Updating of Review", () => {
     it("Should return a response when review updated successfully!", async () => {
       mockReq.body = {
-        id: 33,
-        rating: 3,
-        content: "Unit Testing Content Updated",
-        review_image: "/image/workbench-updated.jpg",
+        id: testInsertId,
+        reviewRating: 3,
+        reviewContent: "Unit Testing Content Updated",
+        reviewImage: "/image/workbench-updated.jpg",
       };
       await updateReview(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -334,7 +335,7 @@ describe("Delete Review - Check RequestBody Fields", () => {
   describe("Delete Review - Deleting of Review", () => {
     it("Return response when review is deleted successfully!", async () => {
       mockReq.query = {
-        id: 37,
+        id: testInsertId,
       };
 
       await deleteReview(mockReq, mockRes);
