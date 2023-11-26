@@ -58,7 +58,6 @@ export const getProductReviews = async (req, res) => {
     }
     const model = new Review();
     model.setProductId(body.product_id);
-    console.log(model.getProductId());
     result = await reviewDao.getProductReviews(model);
 
     res.json({
@@ -98,7 +97,6 @@ export const updateReview = async (req, res) => {
       null,
       body.review_image
     );
-    console.log(model);
     result = await reviewDao.updateReview(model);
     res.json({
       message: "Review updated successfully!",
