@@ -5,31 +5,31 @@ export class ReviewValidations {
     //* Validation Check
     if (!body?.user_id || !Number.isInteger(body?.user_id)) {
       return {
-        message: "userId field required!, field-type: Integer",
+        message: "user_id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.product_id || !Number.isInteger(body?.product_id)){
       return {
-        message: "productId field required!, field-type: Integer",
+        message: "product_id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.review_image || !body?.review_image.trim()){
       return {
-        message: "reviewImage field required!",
+        message: "review_image field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.rating || !Number.isInteger(body?.rating)){
       return {
-        message: "reviewRating field required!, field-type: Integer",
+        message: "rating field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }
     if (!body?.content || !body?.content.trim()){
       return {
-        message: "reviewContent field required!",
+        message: "content field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE
       }
     }

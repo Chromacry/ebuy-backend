@@ -1,3 +1,8 @@
+
+
+
+
+
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import { STATUS_CODES } from "../src/constants/GlobalConstants.mjs";
@@ -32,7 +37,7 @@ describe("Add Review Controller", async () => {
   });
 
   describe("Add Review - Check RequestBody Fields", async () => {
-    it("Return response when sellerId field is empty!", () => {
+    it("Return response when user_id field is empty!", () => {
       mockReq.body = {
         content: "Unit Testing Content",
         review_image: "/image/workbench.jpg",
@@ -42,12 +47,12 @@ describe("Add Review Controller", async () => {
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "userId field required!, field-type: Integer",
+        message: "user_id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when sellerId field is not integer!", () => {
+    it("Return response when product_id field is not integer!", () => {
       mockReq.body = {
         user_id: 13,
         content: "Unit Testing Content ",
@@ -57,12 +62,12 @@ describe("Add Review Controller", async () => {
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "productId field required!, field-type: Integer",
+        message: "product_id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when productName field is empty!", () => {
+    it("Return response when review_image field is empty!", () => {
       mockReq.body = {
         user_id: 13,
         content: "Unit Testing Content ",
@@ -72,12 +77,12 @@ describe("Add Review Controller", async () => {
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "reviewImage field required!",
+        message: "review_image field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when productDescription field is empty!", () => {
+    it("Return response when rating field is empty!", () => {
       mockReq.body = {
         user_id: 13,
         content: "Unit Testing Content ",
@@ -87,12 +92,12 @@ describe("Add Review Controller", async () => {
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "reviewRating field required!, field-type: Integer",
+        message: "rating field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
 
-    it("Return response when productImage field is empty!", () => {
+    it("Return response when content field is empty!", () => {
       mockReq.body = {
         user_id: 13,
         rating: 1,
@@ -102,7 +107,7 @@ describe("Add Review Controller", async () => {
 
       addReview(mockReq, mockRes);
       expect(response).to.deep.include({
-        message: "reviewContent field required!",
+        message: "content field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
@@ -239,7 +244,7 @@ describe("Update Review Controller", async () => {
       });
     });
 
-    it("Should return a response when content field is not integer!", async () => {
+    it("Should return a response when content field is empty!", async () => {
       mockReq.body = {
         id: 13,
         rating: 1,
