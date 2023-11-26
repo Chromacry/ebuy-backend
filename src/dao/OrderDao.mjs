@@ -126,4 +126,22 @@ export class OrderDao {
       dbConnection.end();
     });
   }
+  // getOrderByProductIdAndUserId(model) {
+  //   return new Promise((resolve, reject) => {
+  //     const dbConnection = mysql.createConnection(dbConfig);
+  //     dbConnection.connect();
+  //     const sql = `SELECT * FROM ${dbTableName} WHERE product_id = ? AND user_id = ?`;
+  //     dbConnection.query(
+  //       sql,
+  //       [model.getProductId(), model.getUserId()],
+  //       (error, results) => {
+  //         if (error) {
+  //           reject(error);
+  //         } else {
+  //           resolve(results);
+  //         }
+  //       });
+  //       dbConnection.end();
+  //   });
+  // }
 }
