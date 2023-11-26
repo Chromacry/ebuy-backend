@@ -329,7 +329,7 @@ describe("OrderController", function () {
     });
 
     describe("Delete Order - Check RequestBody Fields", () => {
-      // done
+
       it("should return a response when id field is empty!", async () => {
         mockReq.query = {
           UserId: 0,
@@ -341,7 +341,7 @@ describe("OrderController", function () {
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
-      // done
+
       it("should return a response when UserId field is empty!", async () => {
         mockReq.query = {
           id: 1,
@@ -353,7 +353,7 @@ describe("OrderController", function () {
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
-      // done
+
       it("should return a response when ProductId field is empty!", async () => {
         mockReq.query = {
           id: 1,
@@ -369,7 +369,7 @@ describe("OrderController", function () {
     });
 
     describe("Delete Order - Deleting of Order", () => {
-      // done
+
       it("should return a response when order does not exist!", async () => {
         mockReq.query = {
           id: 1,
@@ -383,7 +383,6 @@ describe("OrderController", function () {
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       }).timeout(0);
-      done
       it("should return a response when order is deleted successfully!", async () => {
         mockReq.query = {
           id: deleteId,
