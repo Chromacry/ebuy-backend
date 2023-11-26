@@ -1,4 +1,4 @@
-import chai, { expect } from "chai";
+import chai, { expect, use } from "chai";
 import { STATUS_CODES } from "../src/constants/GlobalConstants.mjs";
 import {
   register,
@@ -13,6 +13,13 @@ import {
 describe("UserController", function () {
   this.timeout(0);
   let mockReq, mockRes, response, status, token;
+
+  let username = "testuser";
+  let email = "mochaTest@gmail.com";
+  let password = "Password123";
+  let invalidEmailFormat = "invalidemailformat";
+  let wrongEmail =  "test@example.com";
+  let wrongPassword ="wrongPassword";
   let invalidToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvZSBCbG9nZ3MiLCJpYXQiOjE1MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
@@ -39,8 +46,8 @@ describe("UserController", function () {
     it("should return an error for missing required fields", async () => {
       mockReq.body = {
         username: "",
-        email: "mochatest@example.com",
-        password: "mochamochaTest1234",
+        email: email,
+        password: password,
       };
       await register(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -51,9 +58,9 @@ describe("UserController", function () {
 
     it("should return an error for invalid email format", async () => {
       mockReq.body = {
-        username: "testuser",
-        email: "invalidemailformat",
-        password: "Password123",
+        username: username,
+        email: invalidEmailFormat,
+        password: password,
       };
       await register(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -65,26 +72,22 @@ describe("UserController", function () {
     // Test for successful registration
     it("should successfully register a user", async () => {
       mockReq.body = {
-        username: "mochaTest",
-        email: "mochaTest@gmail.com",
-        password: "mochaTest1234",
+        username: username,
+        email: email,
+        password: password,
       };
-      // Assuming the function would return a successful registration message
       await register(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Registration successful!",
         status: STATUS_CODES.SUCCESS_CODE,
       });
-    }).timeout(0); // Disable timeout for this test
-
+    })
     it("should return an error for duplicate email registration", async () => {
       mockReq.body = {
-        username: "mochaTest",
-        email: "mochaTest@gmail.com",
-        password: "mochaTest1234",
+        username: username,
+        email: email,
+        password: password,
       };
-
-      // Here you simulate the behavior as if the email already exists in the database
       await register(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Email has already been registered!",
@@ -96,7 +99,7 @@ describe("UserController", function () {
     it("should return an error for missing email or password", async () => {
       mockReq.body = {
         email: "",
-        password: "testPassword",
+        password: password,
       };
       await login(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -107,8 +110,8 @@ describe("UserController", function () {
 
     it("should return an error for invalid email format", async () => {
       mockReq.body = {
-        email: "invalidemail",
-        password: "testPassword",
+        email: invalidEmailFormat,
+        password: password,
       };
       await login(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -119,8 +122,8 @@ describe("UserController", function () {
 
     it("should return an error for incorrect email or password", async () => {
       mockReq.body = {
-        email: "test@example.com",
-        password: "wrongPassword",
+        email: wrongEmail,
+        password: wrongPassword,
       };
       await login(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -128,12 +131,10 @@ describe("UserController", function () {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
-
-    // Assuming you have a way to mock successful login
     it("should successfully log in a user", async () => {
       mockReq.body = {
-        email: "mochaTest@gmail.com",
-        password: "mochaTest1234",
+        email: email,
+        password: password,
       };
       await login(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -156,7 +157,6 @@ describe("UserController", function () {
 
     it("should return user details for a valid token", async () => {
       mockReq.headers = { token: token };
-      // Mock the database response and JWT verification as needed
       await getUser(mockReq, mockRes);
       expect(response).to.have.property("username");
       expect(response).to.have.property("email");
@@ -168,9 +168,8 @@ describe("UserController", function () {
     it("should return an error for invalid or expired token", async () => {
       mockReq.headers = {
         token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvZSBCbG9nZ3MiLCJpYXQiOjE1MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+          invalidToken,
       };
-      // Mock JWT verification to throw an error or return invalid
       await getUser(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Unauthorized: Invalid token or user not found!",
@@ -182,7 +181,7 @@ describe("UserController", function () {
     it("should require all fields", async () => {
       mockReq.headers = { token: token };
       mockReq.body = {
-        currentPassword: "mochaTest1234",
+        currentPassword: password,
         newPassword: "newPassword2",
         confirmPassword: "",
       };
@@ -196,7 +195,7 @@ describe("UserController", function () {
     it("should require new password and confirm password to match", async () => {
       mockReq.headers = { token: token };
       mockReq.body = {
-        currentPassword: "mochaTest1234",
+        currentPassword: password,
         newPassword: "newPassword2",
         confirmPassword: "differentNewPassword",
       };
@@ -210,9 +209,9 @@ describe("UserController", function () {
     it("should not allow new password to be the same as current password", async () => {
       mockReq.headers = { token: token };
       mockReq.body = {
-        currentPassword: "mochaTest1234",
-        newPassword: "mochaTest1234",
-        confirmPassword: "mochaTest1234",
+        currentPassword: password,
+        newPassword: password,
+        confirmPassword: password,
       };
       await passwordReset(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -220,13 +219,10 @@ describe("UserController", function () {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
-
-    // Test case for successful password reset
-    // Note: This test assumes a successful flow and does not mock database or bcrypt functions.
     it("should reset the password successfully", async () => {
       mockReq.headers = { token: token };
       mockReq.body = {
-        currentPassword: "mochaTest1234",
+        currentPassword: password,
         newPassword: "newPassword",
         confirmPassword: "newPassword",
       };
@@ -241,10 +237,9 @@ describe("UserController", function () {
       mockReq.headers = { token: token };
       mockReq.body = {
         currentPassword: "newPassword",
-        newPassword: "mochaTest1234",
-        confirmPassword: "mochaTest1234",
+        newPassword: password,
+        confirmPassword: password,
       };
-      // Assume the password comparison and database update are successful
       await passwordReset(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Password Reset Successfully!",
@@ -274,8 +269,7 @@ describe("UserController", function () {
 
     it("should not allow the same new and current username", async () => {
       mockReq.headers = { token: token };
-      mockReq.body = { username: "mochaTest" }; // Assume "currentUsername" is the current username in DB
-      // Mock the database response to simulate the current username
+      mockReq.body = { username: username };
       await updateUsername(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "New username cannot be the same as the current username!",
@@ -331,8 +325,6 @@ describe("UserController", function () {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     });
-
-    // Additional test cases for database errors or other scenarios...
   });
   describe("deleteAccount", () => {
     it("should delete a user account successfully", async () => {
@@ -345,7 +337,6 @@ describe("UserController", function () {
     });
     it("should return an error for invalid or expired token with user not found error ", async () => {
       mockReq.headers = { token: invalidToken };
-      // Mock JWT verification to throw an error or return invalid
       await deleteAccount(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Invalid token, user not found!",
