@@ -61,12 +61,12 @@ export class Product {
 			this.product_quantity = product_quantity;
 	}
 
-	getSoldQuantity() {
-			return this.sold_quantity;
-	}
-	setSoldQuantity(sold_quantity) {
-			this.sold_quantity = sold_quantity;
-	}
+	// getSoldQuantity() {
+	// 		return this.sold_quantity;
+	// }
+	// setSoldQuantity(sold_quantity) {
+	// 		this.sold_quantity = sold_quantity;
+	// }
 
 	getCreatedTime() {
 			return this.created_time;
