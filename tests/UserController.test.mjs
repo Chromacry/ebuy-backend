@@ -120,10 +120,22 @@ describe("UserController", function () {
     });
   });
   describe("login", () => {
-    it("should return an error for missing email or password", async () => {
+    it("should return an error for missing email or password! (email)", async () => {
       mockReq.body = {
         email: "",
         password: password,
+      };
+      await login(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Email and password are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return an error for missing email or password! (password)", async () => {
+      mockReq.body = {
+        email: email,
+        password: "",
       };
       await login(mockReq, mockRes);
       expect(response).to.deep.include({
@@ -202,12 +214,38 @@ describe("UserController", function () {
     });
   });
   describe("resetPassword", () => {
-    it("should require all fields", async () => {
+    it("should require all fields (confirmPassword)", async () => {
       mockReq.headers = { token: token };
       mockReq.body = {
         currentPassword: password,
         newPassword: "newPassword2",
         confirmPassword: "",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "All fields are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+    it("should require all fields (newPassword)", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: password,
+        newPassword: "",
+        confirmPassword: "differentNewPassword",
+      };
+      await passwordReset(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "All fields are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+    it("should require all fields (password)", async () => {
+      mockReq.headers = { token: token };
+      mockReq.body = {
+        currentPassword: "",
+        newPassword: "newPassword2",
+        confirmPassword: "differentNewPassword",
       };
       await passwordReset(mockReq, mockRes);
       expect(response).to.deep.include({
