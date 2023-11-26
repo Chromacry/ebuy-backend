@@ -9,11 +9,11 @@ export const addReview = async (req, res) => {
   try {
     let result;
     const body = {
-      user_id: req?.body?.user_id,
-      product_id: req?.body?.product_id,
-      rating: req?.body?.rating,
-      content: req?.body?.content,
-      review_image: req?.body?.review_image,
+      user_id: req?.body?.userId,
+      product_id: req?.body?.productId,
+      review_rating: req?.body?.reviewRating,
+      review_content: req?.body?.reviewContent,
+      review_image: req?.body?.reviewImage,
       created_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = reviewValidations.addReviewValidator(body);
@@ -23,8 +23,8 @@ export const addReview = async (req, res) => {
     }
     const model = new Review(
       null,
-      body.content,
-      body.rating,
+      body.review_content,
+      body.review_rating,
       body.user_id,
       body.product_id,
       body.created_time,
@@ -49,7 +49,7 @@ export const getProductReviews = async (req, res) => {
   try {
     let result;
     const body = {
-      product_id: parseInt(req?.query?.id),
+      product_id: parseInt(req?.query?.productId),
     };
     const validationResult = reviewValidations.getProductReviewsValidator(body);
     if (validationResult) {
@@ -79,9 +79,9 @@ export const updateReview = async (req, res) => {
     let result;
     const body = {
       id: req?.body?.id,
-      content: req?.body?.content,
-      rating: req?.body?.rating,
-      review_image: req?.body?.review_image,
+      review_content: req?.body?.reviewContent,
+      review_rating: req?.body?.reviewRating,
+      review_image: req?.body?.reviewImage,
     };
     const validationResult = reviewValidations.updateReviewValidator(body);
     if (validationResult) {
@@ -90,8 +90,8 @@ export const updateReview = async (req, res) => {
     }
     const model = new Review(
       body.id,
-      body.content,
-      body.rating,
+      body.review_content,
+      body.review_rating,
       null,
       null,
       null,
