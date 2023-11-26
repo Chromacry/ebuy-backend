@@ -4,6 +4,8 @@ import { STATUS_CODES } from "../src/constants/GlobalConstants.mjs";
 
 import {
   addProduct,
+  getAllProducts,
+  getProduct,
   updateProduct,
 } from "../src/controllers/ProductController.mjs";
 
@@ -145,12 +147,12 @@ describe("Add Product Controller", async () => {
         productImage: "/image/workbench.jpg",
         productQuantity: 1,
       };
-        await addProduct(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Added product successfully!",
-          data: response?.data,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
+      await addProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Added product successfully!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
     });
 
     it("Return response when product name exist when adding new product with same name!", async () => {
@@ -161,12 +163,12 @@ describe("Add Product Controller", async () => {
         productImage: "/image/workbench.jpg",
         productQuantity: 1,
       };
-        await addProduct(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Product already exists!",
-          data: response?.data,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
+      await addProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product already exists!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
     });
   });
 });
@@ -293,7 +295,7 @@ describe("Update Product Controller", async () => {
         productDescription: "pc parts",
         productImage: "/image/workbench.jpg",
       };
-      await updateProduct(mockReq, mockRes)
+      await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Product does not exist!",
         data: response?.data,
@@ -309,13 +311,13 @@ describe("Update Product Controller", async () => {
         productDescription: "Testing workbench for pc parts",
         productImage: "/image/workbench.jpg",
       };
-      await updateProduct(mockReq, mockRes)
+      await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Product does not exist!",
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    }).timeout(0)
+    }).timeout(0);
 
     it("should return a response when product name exist with same name!", async () => {
       mockReq.body = {
@@ -325,13 +327,13 @@ describe("Update Product Controller", async () => {
         productDescription: "Testing workbench for pc parts",
         productImage: "/image/workbench.jpg",
       };
-      await updateProduct(mockReq, mockRes)
+      await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Product already exist!",
         data: response?.data,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    }).timeout(0)
+    }).timeout(0);
 
     it("should return a response when product updated successfully!", async () => {
       mockReq.body = {
@@ -341,12 +343,107 @@ describe("Update Product Controller", async () => {
         productDescription: "Testing workbench for pc parts",
         productImage: "/image/workbench.jpg",
       };
-      await updateProduct(mockReq, mockRes)
+      await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "Updated product successfully!",
         data: response?.data,
         status: STATUS_CODES.SUCCESS_CODE,
       });
-    }).timeout(0)
+    }).timeout(0);
+  });
+});
+
+describe("Get Product Controller", async () => {
+  let mockReq, mockRes, response;
+
+  beforeEach(() => {
+    mockReq = {};
+    mockRes = {
+      json: (resObj) => {
+        response = resObj;
+      },
+      status: (code) => {
+        status = code;
+        return {
+          json: (resObj) => {
+            response = resObj;
+          },
+        };
+      },
+    };
+  });
+
+  describe("Get Product - Check RequestBody Fields", () => {
+    it("should return a response when id field is empty!", async () => {
+      mockReq.query = {};
+
+      await getProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when id field is not an integer but letters!", async () => {
+      mockReq.query = {
+        id: "a",
+      };
+
+      await getProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    });
+
+    it("should return a response when id field an integer but string!", async () => {
+      mockReq.query = {
+        id: "1",
+      };
+
+      await getProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    });
+  });
+  describe("Get Product - Retrieve one product", () => {
+    it("should return a response when product does not exist!", async () => {
+      mockReq.query = {
+        id: 1,
+      };
+      await getProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Product does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+
+    it("should return a response when product is retrieved successfully!", async () => {
+      mockReq.query = {
+        id: 31,
+      };
+      await getProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Successfully retrieved product!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
+  });
+
+  describe("Get All Product - Retrieve all products", () => {
+    it("should return a response when all products retrieved successfully!", async () => {
+      mockReq.body = {};
+      await getAllProducts(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Successfully retrieved all products!",
+        data: response?.data,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
+    }).timeout(0);
   });
 });
