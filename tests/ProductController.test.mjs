@@ -31,7 +31,7 @@ describe("Add Product Controller", async () => {
   });
 
   describe("Add Product - Check RequestBody Fields", async () => {
-    it("Return response when sellerId field is empty!", () => {
+    it("should return a response when sellerId field is empty!", () => {
       mockReq.body = {
         productName: "Unit Testing Workbench",
         productDescription: "Testing workbench for pc parts",
@@ -46,7 +46,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when sellerId field is not integer!", () => {
+    it("should return a response when sellerId field is not integer!", () => {
       mockReq.body = {
         sellerId: "12",
         productName: "Unit Testing Workbench",
@@ -62,7 +62,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when productName field is empty!", () => {
+    it("should return a response when productName field is empty!", () => {
       mockReq.body = {
         sellerId: 12,
         productDescription: "Testing workbench for pc parts",
@@ -77,7 +77,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when productDescription field is empty!", () => {
+    it("should return a response when productDescription field is empty!", () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -92,7 +92,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when productImage field is empty!", () => {
+    it("should return a response when productImage field is empty!", () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -107,7 +107,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when productQuantity field is empty!", () => {
+    it("should return a response when productQuantity field is empty!", () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -122,7 +122,7 @@ describe("Add Product Controller", async () => {
       });
     });
 
-    it("Return response when productQuantity field is not integer!", () => {
+    it("should return a response when productQuantity field is not integer!", () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -140,7 +140,23 @@ describe("Add Product Controller", async () => {
   });
 
   describe("Add Product - Adding of product", async () => {
-    it("Return response when product added successfully!", async () => {
+    it("should return a response when sellerId don't exist!", async () => {
+      mockReq.body = {
+        sellerId: 1,
+        productName: "Unit Testing Workbench",
+        productDescription: "Testing workbench for pc parts",
+        productImage: "/image/workbench.jpg",
+        productQuantity: 1,
+      };
+      await addProduct(mockReq, mockRes);
+      expect(response).to.deep.include({
+        message: "Seller does not exist!",
+        data: response?.data,
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }).timeout(0);
+
+    it("should return a response when product added successfully!", async () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -155,8 +171,8 @@ describe("Add Product Controller", async () => {
         status: STATUS_CODES.SUCCESS_CODE,
       });
     });
-
-    it("Return response when product name exist when adding new product with same name!", async () => {
+    
+    it("should return a response when product name exist when adding new product with same name!", async () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -195,7 +211,7 @@ describe("Update Product Controller", async () => {
   });
 
   describe("Update Product - Check RequestBody Fields", () => {
-    it("Return response when id field is empty!", async () => {
+    it("should return a response when id field is empty!", async () => {
       mockReq.body = {
         sellerId: 12,
         productName: "Unit Testing Workbench",
@@ -210,7 +226,7 @@ describe("Update Product Controller", async () => {
       });
     });
 
-    it("Return response when sellerId field is empty!", async () => {
+    it("should return a response when sellerId field is empty!", async () => {
       mockReq.body = {
         id: 12,
         productName: "Unit Testing Workbench",
@@ -225,7 +241,7 @@ describe("Update Product Controller", async () => {
       });
     });
 
-    it("Return response when sellerId field is not integer!", async () => {
+    it("should return a response when sellerId field is not integer!", async () => {
       mockReq.body = {
         id: 12,
         sellerId: "12",
@@ -241,7 +257,7 @@ describe("Update Product Controller", async () => {
       });
     });
 
-    it("Return response when productName field is empty!", async () => {
+    it("should return a response when productName field is empty!", async () => {
       mockReq.body = {
         id: 12,
         sellerId: 12,
@@ -256,7 +272,7 @@ describe("Update Product Controller", async () => {
       });
     });
 
-    it("Return response when productDescription field is empty!", async () => {
+    it("should return a response when productDescription field is empty!", async () => {
       mockReq.body = {
         id: 12,
         sellerId: 12,
@@ -271,7 +287,7 @@ describe("Update Product Controller", async () => {
       });
     });
 
-    it("Return response when productImage field is empty!", async () => {
+    it("should return a response when productImage field is empty!", async () => {
       mockReq.body = {
         id: 12,
         sellerId: 12,
