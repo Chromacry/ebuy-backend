@@ -92,10 +92,52 @@ describe("OrderController", function () {
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
+
+      it("should return a response when orderQuantity field is not integer!", () => {
+        mockReq.body = {
+          productId: 12,
+          userId: 14,
+          orderStatus: "Delivered",
+        };
+  
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message: "Invalid order_quantity! It should not be empty",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
+
+      it("should return a response when orderStatus field is not string!", () => {
+        mockReq.body = {
+          productId: 12,
+          userId: 14,
+          orderQuantity: 2,
+        };
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message:  "Invalid order_status! It should be a non-empty string.",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
+
+      it("should return a response when orderQuantity field is not integer!", () => {
+        mockReq.body = {
+          productId: 2,
+          userId: 14,
+          orderQuantity: "2",
+          orderStatus: "Delivered",
+        };
+  
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message:  "Invalid order_status! It should be a non-empty string.",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
     });
 
     describe("Add Order - Adding of order", async () => {
-      it("should return a response when product added successfully!", async () => {
+      it("should return a response when order added successfully!", async () => {
         mockReq.body = {
           productId: 2,
           userId: 14,
@@ -150,7 +192,7 @@ describe("OrderController", function () {
         mockReq.body = {};
         await getAllOrders(mockReq, mockRes);
 
-        //* Find for unit test added product by name and save it
+        //* Find for unit test added order by name and save it
         const unitTestData = response?.data.find(item => item.id === "Unit Testing Workbench");
         orderModel = new Order(unitTestData?.id, unitTestData?.productId)
 
@@ -289,8 +331,8 @@ describe("OrderController", function () {
       });
     });
 
-    describe("Update Product - Updating of product", () => {
-      it("should return a response when product updated successfully!", async () => {
+    describe("Update Order - Updating of order", () => {
+      it("should return a response when order updated successfully!", async () => {
         mockReq.body = {
           id:30,
           productId: 2,
@@ -396,6 +438,34 @@ describe("OrderController", function () {
           status: STATUS_CODES.SUCCESS_CODE,
         });
       }).timeout(0);
+    });
+  });
+
+  describe("OrderModel methods coverage", function () {
+    it("should cover constructor and setter methods", function () {
+      // Test the constructor
+      const order = new Order(1, 2, 3, 4, "Pending", "2023-01-01");
+      expect(order.getId()).to.equal(1);
+      expect(order.getProductId()).to.equal(2);
+      expect(order.getUserId()).to.equal(3);
+      expect(order.getOrderQuantity()).to.equal(4);
+      expect(order.getOrderStatus()).to.equal("Pending");
+      expect(order.getCreatedTime()).to.equal("2023-01-01");
+
+      // Test setter methods
+      order.setId(10);
+      order.setProductId(20);
+      order.setUserId(30);
+      order.setOrderQuantity(40);
+      order.setOrderStatus("Delivered");
+      order.setCreatedTime("2023-02-01");
+
+      expect(order.getId()).to.equal(10);
+      expect(order.getProductId()).to.equal(20);
+      expect(order.getUserId()).to.equal(30);
+      expect(order.getOrderQuantity()).to.equal(40);
+      expect(order.getOrderStatus()).to.equal("Delivered");
+      expect(order.getCreatedTime()).to.equal("2023-02-01");
     });
   });
 });

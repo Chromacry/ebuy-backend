@@ -45,17 +45,6 @@ export const addOrder = async (req, res) => {
       body?.order_status,
       body?.created_time
     );
-    // // check whether order is existing
-    // result = await orderDao.getOrderByProductIdAndUserId(model);
-    // if (result.length >= 1) {
-    //   res.json({
-    //     message: "Product already exists!",
-    //     data: result,
-    //     status: STATUS_CODES.BAD_REQUEST_CODE,
-    //   });
-    //   return;
-    // }
-
     result = await orderDao.addOrder(model);
 
     res.json({
