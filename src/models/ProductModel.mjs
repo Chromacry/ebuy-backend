@@ -7,7 +7,9 @@ export class Product {
 			product_image,
 			product_quantity,
 			sold_quantity,
-			created_time
+			created_time,
+			limit,
+			offset,
 	) {
 			this.id = id;
 			this.seller_id = seller_id;
@@ -17,6 +19,8 @@ export class Product {
 			this.product_quantity = product_quantity;
 			this.sold_quantity = sold_quantity;
 			this.created_time = created_time;
+			this.limit = limit;
+			this.offset = offset;
 	}
 
 	getId() {
@@ -73,5 +77,17 @@ export class Product {
 	}
 	setCreatedTime(created_time) {
 			this.created_time = created_time;
+	}
+	getLimit() {
+		return this.limit;
+	}
+	setLimit(limit) {
+			this.limit = limit;
+	}
+	getOffset() {
+		return this.offset;
+	}
+	setOffset(offset) {
+			this.offset = offset;
 	}
 }

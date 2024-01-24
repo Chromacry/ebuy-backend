@@ -1,14 +1,29 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 
 export class ProductValidations {
+  getProductListValidator(body) {
+    //* Validation Check
+    if (typeof body.limit === 'undefined') {
+      return {
+        message: "limit is required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (typeof body.offset === 'undefined') {
+      return {
+        message: "offset is required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+  }
   addProductValidator(body, res) {
     //* Validation Check
-    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
-      return {
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      }
-    }
+    // if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
+    //   return {
+    //     message: "sellerId field required!, field-type: Integer",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   }
+    // }
     if (!body?.product_name) {
       return {
         message: "productName field required!",
@@ -43,12 +58,6 @@ export class ProductValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.seller_id || !Number.isInteger(body?.seller_id)) {
-      return {
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
   }
 
   updateProductValidator(body) {
@@ -59,14 +68,14 @@ export class ProductValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (
-      (!body?.seller_id || !Number.isInteger(body?.seller_id))
-    ) {
-      return {
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
+    // if (
+    //   (!body?.seller_id || !Number.isInteger(body?.seller_id))
+    // ) {
+    //   return {
+    //     message: "sellerId field required!, field-type: Integer",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   };
+    // }
     if (!body?.product_name) {
       return {
         message: "productName field required!",

@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { ProductDao } from "../dao/ProductDao.mjs";
 import { Product } from "../models/ProductModel.mjs";
@@ -5,7 +6,6 @@ import { UserDao } from "../dao/UserDao.mjs";
 import { User } from "../models/UserModel.mjs"
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import { ProductValidations } from "../utils/ProductBodyValidationUtil.mjs";
-
 const userDao = new UserDao();
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
@@ -16,6 +16,48 @@ export const getAllProducts = async (req, res) => {
     const body = {};
     const model = new Product();
     result = await productDao.getAllProducts(model);
+    res.json({
+      message: "Successfully retrieved all products!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
+
+export const getAllProductList = async (req, res) => {
+  try {
+    let result;
+    
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    const body = {
+      seller_id: decoded.id,
+      limit: parseInt(req?.query?.limit),
+      offset: parseInt(req?.query?.offset),
+    };
+    console.log(body)
+    const validationResult = productValidations.getProductListValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
+    const model = new Product();
+    model.setSellerId(body?.seller_id)
+    model.setLimit(body?.limit)
+    model.setOffset(body?.offset)
+    result = await productDao.getProductList(model);
     res.json({
       message: "Successfully retrieved all products!",
       data: result,
@@ -72,9 +114,16 @@ export const getProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     let result;
-
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
-      seller_id: req?.body?.sellerId,
+      seller_id: decoded?.id,
       product_name: req?.body?.productName,
       product_description: req?.body?.productDescription,
       product_image: req?.body?.productImage,
@@ -141,10 +190,17 @@ export const addProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     let result;
-
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
       id: parseInt(req?.query?.id),
-      seller_id: parseInt(req?.query?.sellerId),
+      seller_id: decoded?.id,
       deleted_time: getDateTimeNowLocalISOString(),
     };
     const validationResult = productValidations.deleteProductValidator(body);
@@ -184,10 +240,17 @@ export const deleteProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     let result;
-    
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
       id: req?.body?.id,
-      seller_id: req?.body?.sellerId,
+      seller_id: decoded?.id,
       product_name: req?.body?.productName,
       product_description: req?.body?.productDescription,
       product_image: req?.body?.productImage,

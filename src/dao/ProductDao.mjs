@@ -19,6 +19,30 @@ export class ProductDao {
       dbConnection.end();
     });
   }
+  getProductList(model) {
+    return new Promise((resolve, reject) => {
+      let queryCount;
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const countSQL = `SELECT COUNT(*) as count FROM ${dbTableName} WHERE seller_id = ?;`;
+      dbConnection.query(countSQL, [model.getSellerId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          queryCount = results;
+        }
+      });
+      const sql = `SELECT id, product_image, product_name, product_description, product_quantity,sold_quantity FROM ${dbTableName} WHERE seller_id = ? LIMIT ? OFFSET ?;`
+      dbConnection.query(sql, [model.getSellerId(), model.getLimit(), model.getOffset()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ count: queryCount[0]?.count, data: results })
+        }
+      });
+      dbConnection.end();
+    });
+  }
 
   addProduct(model) {
     return new Promise((resolve, reject) => {
