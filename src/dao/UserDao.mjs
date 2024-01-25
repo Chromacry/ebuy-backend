@@ -162,5 +162,20 @@ export class UserDao {
       dbConnection.end();
     });
   }
+  async updateUserToSeller(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET is_seller = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getIsSeller(), model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
   //* Added by Goh Zong Xian
 }
