@@ -29,6 +29,7 @@ export class UserDao {
         username: model.getUsername(),
         email: model.getEmail(),
         password: model.getPassword(),
+        created_time: model.getCreatedTime(),
       };
       dbConnection.query(sql, userData, (error, results) => {
         if (error) {

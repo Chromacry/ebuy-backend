@@ -38,8 +38,9 @@ export const register = async (req, res) => {
       null,
       false,
       null,
-      getDateTimeNowLocalISOString()
+      getDateTimeNowLocalISOString(),
     );
+    console.log(model)
     const emailExists = await userDao.checkEmailExists(model);
     if (emailExists) {
       return res.json({
@@ -151,11 +152,13 @@ export const getUser = async (req, res) => {
     }
 
     return res.json({
+      message: "Authenticated",
       username: user[0].username,
       profile_image: user[0].profile_image,
       email: user[0].email,
       id: user[0].id,
       created_time: user[0].created_time,
+      is_seller: user[0].is_seller
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
