@@ -364,3 +364,49 @@ export const deleteAccount = async (req, res) => {
     });
   }
 };
+
+export const getUserByUserId = async (req, res) => {
+  const userDao = new UserDao();
+  const storedToken = req.headers.token;
+
+  if (!storedToken) {
+    return res.status(401).json({
+      message: "Unauthorized: Token not found in request headers!",
+      status: STATUS_CODES.UNAUTHORIZED_CODE,
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    console.log(req.body.userIds);
+    const model = {
+      userIds : req.body.userIds
+    }
+    const result = await userDao.getUsersByUserId(model);
+
+    if (!result) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid token or user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+
+    return res.json({
+      message: "Users successfully Retrieved!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid token or user not found!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    console.error("Error in getUser:", error);
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};

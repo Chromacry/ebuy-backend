@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteAccount, getUser, login, passwordReset, register, updateProfileImage, updateUsername } from "../controllers/UserController.mjs";
+import { deleteAccount, getUser, getUserByUserId, login, passwordReset, register, updateProfileImage, updateUsername } from "../controllers/UserController.mjs";
 
 const router = Router();
 
@@ -10,5 +10,6 @@ router.post("/passwordReset", passwordReset);
 router.put("/updateUsername", updateUsername);
 router.put("/updateProfileImage", updateProfileImage);
 router.delete("/deleteAccount", deleteAccount);
+router.post("/getUsers", getUserByUserId);
 
 export default router;
