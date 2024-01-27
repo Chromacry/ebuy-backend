@@ -47,7 +47,6 @@ export const getAllProductList = async (req, res) => {
       limit: parseInt(req?.query?.limit),
       offset: parseInt(req?.query?.offset),
     };
-    console.log(body)
     const validationResult = productValidations.getProductListValidator(body);
     if (validationResult) {
       res.json(validationResult);
