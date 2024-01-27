@@ -31,8 +31,10 @@
     "test:userController": "c8 mocha 'tests/UserController.test.mjs'",
     "test:reviewController": "c8 mocha 'tests/ReviewController.test.mjs'",
     "test:productController": "c8 mocha tests/ProductController.test.mjs",
+    "test:productPage": "mocha tests/ManageProductPage.test.mjs",
     "test:orderController": "c8 mocha 'tests/OrderController.test.mjs'",
     "coverage": "c8 mocha tests/*.test.mjs",
+    "browsertest": "mocha tests/HomePage.test.mjs",
     "test": "mocha tests/*.test.mjs",
     "start": "node src/index.mjs",
     "dev": "nodemon"
@@ -42,6 +44,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "chromedriver": "^121.0.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
@@ -49,7 +52,8 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.3",
     "nodemon": "^3.0.1",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "selenium-webdriver": "^4.17.0"
   },
   "devDependencies": {
     "c8": "^8.0.1",
