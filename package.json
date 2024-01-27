@@ -31,6 +31,7 @@
     "test:userController": "c8 mocha 'tests/UserController.test.mjs'",
     "test:reviewController": "c8 mocha 'tests/ReviewController.test.mjs'",
     "test:productController": "c8 mocha tests/ProductController.test.mjs",
+    "test:productControllerBuild": "mocha tests/ProductController.test.mjs",
     "test:productPage": "mocha tests/ManageProductPage.test.mjs",
     "test:orderController": "c8 mocha 'tests/OrderController.test.mjs'",
     "coverage": "c8 mocha tests/*.test.mjs",
