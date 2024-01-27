@@ -139,3 +139,26 @@ export const deleteReview = async (req, res) => {
     });
   }
 };
+
+export const getReviewByReviewId = async (req, res) => {
+  try {
+    let result;
+    const body = {
+      id: parseInt(req?.query?.id),
+    };
+    const model = new Review();
+    model.setId(body.id);
+    result = await reviewDao.getReviewByReviewId(model);
+    res.json({
+      message: "Review successfully Retrieved!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};

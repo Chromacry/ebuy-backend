@@ -179,4 +179,19 @@ export class UserDao {
     });
   }
   //* Added by Goh Zong Xian
+  async getUsersByUserId(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `SELECT * FROM ${dbTableName} WHERE id IN (?)`;
+      dbConnection.query(sql, [model.userIds], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
 }
