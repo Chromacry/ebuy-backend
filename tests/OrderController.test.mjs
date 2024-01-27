@@ -92,10 +92,52 @@ describe("OrderController", function () {
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
+
+      it("should return a response when orderQuantity field is not integer!", () => {
+        mockReq.body = {
+          productId: 12,
+          userId: 14,
+          orderStatus: "Delivered",
+        };
+  
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message: "Invalid order_quantity! It should not be empty",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
+
+      it("should return a response when orderStatus field is not string!", () => {
+        mockReq.body = {
+          productId: 12,
+          userId: 14,
+          orderQuantity: 2,
+        };
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message:  "Invalid order_status! It should be a non-empty string.",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
+
+      it("should return a response when orderQuantity field is not integer!", () => {
+        mockReq.body = {
+          productId: 2,
+          userId: 14,
+          orderQuantity: "2",
+          orderStatus: "Delivered",
+        };
+  
+        addOrder(mockReq, mockRes);
+        expect(response).to.deep.include({
+          message:  "Invalid order_status! It should be a non-empty string.",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+      });
     });
 
     describe("Add Order - Adding of order", async () => {
-      it("should return a response when product added successfully!", async () => {
+      it("should return a response when order added successfully!", async () => {
         mockReq.body = {
           productId: 2,
           userId: 14,
@@ -150,7 +192,7 @@ describe("OrderController", function () {
         mockReq.body = {};
         await getAllOrders(mockReq, mockRes);
 
-        //* Find for unit test added product by name and save it
+        //* Find for unit test added order by name and save it
         const unitTestData = response?.data.find(item => item.id === "Unit Testing Workbench");
         orderModel = new Order(unitTestData?.id, unitTestData?.productId)
 
@@ -289,8 +331,8 @@ describe("OrderController", function () {
       });
     });
 
-    describe("Update Product - Updating of product", () => {
-      it("should return a response when product updated successfully!", async () => {
+    describe("Update Order - Updating of order", () => {
+      it("should return a response when order updated successfully!", async () => {
         mockReq.body = {
           id:30,
           productId: 2,
@@ -398,4 +440,6 @@ describe("OrderController", function () {
       }).timeout(0);
     });
   });
+
+  
 });
