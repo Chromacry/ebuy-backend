@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { OrderDao } from "../dao/OrderDao.mjs";
 import { Order } from "../models/OrderModel.mjs";
@@ -5,6 +6,7 @@ import { ProductDao } from "../dao/ProductDao.mjs";
 import { Product } from "../models/ProductModel.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import { OrderValidations } from "../utils/RequestBodyValidationUtil.mjs";
+import { generateRandomTrackingNumber } from "../utils/TrackingNumberUtil.mjs";
 const orderDao = new OrderDao();
 const productDao = new ProductDao();
 const orderValidations = new OrderValidations();
@@ -12,51 +14,50 @@ const orderValidations = new OrderValidations();
 export const addOrder = async (req, res) => {
   try {
     let result;
-    
-    const body = {
-      product_id: parseInt(req?.body?.productId),
-      user_id: parseInt(req?.body?.userId),
-      order_quantity: parseInt(req?.body?.orderQuantity),
-      order_status: req?.body?.orderStatus,
-      created_time: getDateTimeNowLocalISOString(),
-    };
-    //* Validate request body
-    const validationResult = orderValidations.addOrderValidator(body);
-    if (validationResult) {
-      res.json(validationResult);
-      return;
-    }
+    const storedToken = req.headers?.token;
 
-    // Check if the referenced product exists
-    const productModel = new Product(body.id);
-    const productExists = await productDao.getProductById(productModel);
-    if (!productExists) {
-      res.json({
-        message: "Referenced product does not exist.",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
-      return;
     }
-    const model = new Order(
-      null,
-      body?.product_id,
-      body?.user_id,
-      body?.order_quantity,
-      body?.order_status,
-      body?.created_time
-    );
-    // // check whether order is existing
-    // result = await orderDao.getOrderByProductIdAndUserId(model);
-    // if (result.length >= 1) {
-    //   res.json({
-    //     message: "Product already exists!",
-    //     data: result,
-    //     status: STATUS_CODES.BAD_REQUEST_CODE,
-    //   });
-    //   return;
-    // }
 
-    result = await orderDao.addOrder(model);
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    const tracking_number = generateRandomTrackingNumber();
+    const body = {
+      cart_items: req.body.cart_items,
+      user_id: decoded?.id,
+      order_status: "Paid",
+      created_time: getDateTimeNowLocalISOString(),
+      tracking_number: tracking_number,
+    };
+    console.log(body.tracking_number,"above validation");
+
+    //* Validate request body
+    for (let i = 0; i < body.cart_items.length; i++) {
+      // Check if the referenced product exists
+      const productModel = new Product(body.cart_items[i].product_id);
+      const productExists = await productDao.getProductById(productModel);
+      if (!productExists) {
+        res.json({
+          message: "Referenced product does not exist.",
+          status: STATUS_CODES.BAD_REQUEST_CODE,
+        });
+        return;
+      }
+      const model = new Order(
+        null,
+        body.cart_items[i].product_id,
+        body?.user_id,
+        body.cart_items[i].order_quantity,
+        body?.order_status,
+        body?.created_time,
+        body?.tracking_number,
+        body.cart_items[i].product_price
+      );
+      result = await orderDao.addOrder(model);
+    }
 
     res.json({
       message: "Added Order successfully!",
@@ -71,6 +72,8 @@ export const addOrder = async (req, res) => {
     });
   }
 };
+
+
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -130,17 +133,69 @@ export const getOrders = async (req, res) => {
   }
 };
 
-export const updateOrder = async (req, res) => {
+export const getAllOrderList = async (req, res) => {
   try {
     let result;
 
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
-      id: parseInt(req?.body?.id),
+      seller_id: decoded.id,
+      limit: parseInt(req?.query?.limit),
+      offset: parseInt(req?.query?.offset),
+    };
+    console.log(body);
+    const validationResult = orderValidations.getOrderListValidator(body);
+    if (validationResult) {
+      res.json(validationResult);
+      return;
+    }
+    const model = new Order();
+    model.setUserId(body?.seller_id);
+    model.setLimit(body?.limit);
+    model.setOffset(body?.offset);
+    result = await orderDao.getOrderList(model);
+    res.json({
+      message: "Successfully retrieved all orders!",
+      data: result,
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      message: `An unexpected error occurred: ${error}`,
+      status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+    });
+  }
+};
+
+export const updateOrder = async (req, res) => {
+  try {
+    let result;
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    const body = {
+      // id: parseInt(req?.body?.id),
+      id: req?.body?.id,
       product_id: parseInt(req?.body?.productId),
-      user_id: parseInt(req?.body?.userId),
+      // user_id: parseInt(req?.body?.userId),
+      user_id: decoded?.id,
       order_quantity: parseInt(req?.body?.orderQuantity),
-      order_status: (req?.body?.orderStatus),
+      order_status: req?.body?.orderStatus,
       updated_time: getDateTimeNowLocalISOString(),
+      tracking_number: req?.body?.orderStatus,
     };
 
     const validationResult = orderValidations.updateOrderValidator(body);
@@ -155,7 +210,8 @@ export const updateOrder = async (req, res) => {
       body?.user_id,
       body?.order_quantity,
       body?.order_status,
-      body?.created_time
+      body?.created_time,
+      body?.tracking_number
     );
 
     //* Check if Order Id exist
@@ -187,30 +243,65 @@ export const updateOrder = async (req, res) => {
 export const deleteOrder = async (req, res) => {
   try {
     let result;
-
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
       id: parseInt(req?.query?.id),
-      product_id: parseInt(req?.query?.productId),
-      user_id: parseInt(req?.query?.userId),
+      user_id: decoded?.id,
       deleted_time: getDateTimeNowLocalISOString(),
     };
+
+    // Check if id is an integer
+    if (
+      typeof body.id !== "number" ||
+      Number.isNaN(body.id) ||
+      !Number.isInteger(body.id)
+    ) {
+      res.json({
+        message: "Invalid 'id' format. It must be an integer.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
+    }
+
+    // Check if user_id is an integer
+    if (
+      typeof body.user_id !== "number" ||
+      Number.isNaN(body.user_id) ||
+      !Number.isInteger(body.user_id)
+    ) {
+      res.json({
+        message: "Invalid 'user_id' format. It must be an integer.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+      return;
+    }
+
     const validationResult = orderValidations.deleteOrderValidator(body);
     if (validationResult) {
       res.json(validationResult);
       return;
     }
-    const model = new Order(body?.id, body?.product_id, body?.user_id);
+    console.log(body.user_id);
+    console.log(body.id);
+    const model = new Order(body?.id, null, body?.user_id);
 
     //* Check if order already exists
     result = await orderDao.getOrderById(model);
-    if (result.length < 1) {
-      res.json({
-        message: "Order does not exist!",
-        data: result,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-      return;
-    }
+    // if (result.length < 1) {
+    //   res.json({
+    //     message: "Order does not exist!",
+    //     data: result,
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   });
+    //   return;
+    // }
     result = await orderDao.deleteOrder(model);
     res.json({
       message: "Deleted order successfully!",

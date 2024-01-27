@@ -1,6 +1,21 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 
 export class OrderValidations {
+  getOrderListValidator(body) {
+    //* Validation Check
+    if (typeof body.limit === 'undefined') {
+      return {
+        message: "limit is required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    if (typeof body.offset === 'undefined') {
+      return {
+        message: "offset is required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+  }
   addOrderValidator(body) {
     //* Validation Check for product_id
     if (!body?.product_id || !Number.isInteger(body?.product_id)) {
@@ -48,12 +63,12 @@ export class OrderValidations {
       };
     }
     //* Validation Check for product_id
-    if (!body?.product_id || !Number.isInteger(body?.product_id)) {
-      return {
-        message: "Invalid product_id! Product do not exist.",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
+    // if (!body?.product_id || !Number.isInteger(body?.product_id)) {
+    //   return {
+    //     message: "Invalid product_id! Product do not exist.",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   };
+    // }
     //* Validation Check for user_id
     if (!body?.user_id || !Number.isInteger(body?.user_id)) {
       return {
@@ -62,16 +77,16 @@ export class OrderValidations {
       };
     }
     //* Validation Check for order_quantity
-    if (
-      !body?.order_quantity ||
-      !Number.isInteger(body?.order_quantity) ||
-      body?.order_quantity <= 0
-    ) {
-      return {
-        message: "Invalid order_quantity! It should not be empty",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
+    // if (
+    //   !body?.order_quantity ||
+    //   !Number.isInteger(body?.order_quantity) ||
+    //   body?.order_quantity <= 0
+    // ) {
+    //   return {
+    //     message: "Invalid order_quantity! It should not be empty",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   };
+    // }
     //* Validation Check for order_status (assuming it's a string)
     if (!body?.order_status || typeof body?.order_status !== "string") {
       return {
@@ -95,12 +110,12 @@ export class OrderValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    if (!body?.product_id || !Number.isInteger(body?.product_id)) {
-      return {
-        message: "ProductId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
+    // if (!body?.product_id || !Number.isInteger(body?.product_id)) {
+    //   return {
+    //     message: "ProductId field required!, field-type: Integer",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   };
+    // }
     if (!body?.id == null) {
       return {
         message: "Order does not exist!",
@@ -114,6 +129,24 @@ export class OrderValidations {
     if (!body?.id || !Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+    return null;
+  }
+
+  getOrderBySellerIdValidator(body) {
+    //* Validation Check
+    if (!body?.seller_id) {
+      return {
+        message: "seller id field required!, field-type: Integer",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
+
+    if (!body?.product_id) {
+      return {
+        message: "product id field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }

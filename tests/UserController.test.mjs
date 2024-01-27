@@ -67,7 +67,7 @@ describe("UserController", function () {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
-    it("should return an error for missing required fields! (password)", async () => {
+    it("should return an error for missing required fields! (passw  ord)", async () => {
       mockReq.body = {
         username: username,
         email: email,
