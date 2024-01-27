@@ -38,8 +38,9 @@ export const register = async (req, res) => {
       null,
       false,
       null,
-      getDateTimeNowLocalISOString()
+      getDateTimeNowLocalISOString(),
     );
+    console.log(model)
     const emailExists = await userDao.checkEmailExists(model);
     if (emailExists) {
       return res.json({
@@ -151,11 +152,13 @@ export const getUser = async (req, res) => {
     }
 
     return res.json({
+      message: "Authenticated",
       username: user[0].username,
       profile_image: user[0].profile_image,
       email: user[0].email,
       id: user[0].id,
       created_time: user[0].created_time,
+      is_seller: user[0].is_seller
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -327,6 +330,46 @@ export const updateProfileImage = async (req, res) => {
       });
     }
 
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+
+export const updateUserToSeller = async (req, res) => {
+  const userDao = new UserDao();
+
+  try {
+    const storedToken = req.headers.token;
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    const model = new User(decoded.id, null, null, null, decoded.token);
+
+    const currentUser = await userDao.getUserByIdAndToken(model);
+
+    if (currentUser.length > 0 && currentUser[0].is_seller === 1) {
+      return res.json({
+        message: "User account is already a seller!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+
+    model.setId(decoded.id);
+    model.setIsSeller(1);
+    await userDao.updateUserToSeller(model);
+
+    return res.json({
+      message: "User updated as seller successfully!",
+      status: STATUS_CODES.SUCCESS_CODE,
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Unauthorized: Invalid or Expired Token!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",

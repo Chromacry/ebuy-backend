@@ -29,6 +29,7 @@ export class UserDao {
         username: model.getUsername(),
         email: model.getEmail(),
         password: model.getPassword(),
+        created_time: model.getCreatedTime(),
       };
       dbConnection.query(sql, userData, (error, results) => {
         if (error) {
@@ -153,6 +154,21 @@ export class UserDao {
       dbConnection.connect();
       const sql = `SELECT * FROM ${dbTableName} WHERE id = ? AND is_seller = 1`;
       dbConnection.query(sql, [model.getId()], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+      dbConnection.end();
+    });
+  }
+  async updateUserToSeller(model) {
+    return new Promise((resolve, reject) => {
+      const dbConnection = mysql.createConnection(dbConfig);
+      dbConnection.connect();
+      const sql = `UPDATE ${dbTableName} SET is_seller = ? WHERE id = ?`;
+      dbConnection.query(sql, [model.getIsSeller(), model.getId()], (error, results) => {
         if (error) {
           reject(error);
         } else {
