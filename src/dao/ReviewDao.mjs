@@ -60,7 +60,10 @@ export class ReviewDao {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT * FROM ${dbTableName} WHERE product_id = ?`;
+      const sql = `SELECT reviews.*, users.username,users.profile_image
+      FROM ${dbTableName} AS reviews
+      JOIN users ON reviews.user_id = users.id
+      WHERE reviews.product_id = ?;`;
       dbConnection.query(sql, [model.getProductId()], (error, results) => {
         if (error) {
           reject(error);
@@ -91,7 +94,12 @@ export class ReviewDao {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT * FROM ${dbTableName} WHERE id = ?`;
+      const sql = `
+      SELECT reviews.*, products.product_name,products.product_image
+      FROM ${dbTableName} AS reviews
+      JOIN products ON reviews.product_id = products.id
+      WHERE reviews.id = ?
+    `;
       dbConnection.query(sql, [model.getId()], (error, results) => {
         if (error) {
           reject(error);
