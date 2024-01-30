@@ -58,7 +58,6 @@ export const addOrder = async (req, res) => {
       );
       result = await orderDao.addOrder(model);
     }
-
     res.json({
       message: "Added Order successfully!",
       data: result,
@@ -132,7 +131,44 @@ export const getOrders = async (req, res) => {
     });
   }
 };
+// export const getOrdersBySellerId = async (req, res) => {
+//   try {
+//     let result;
 
+//     const body = {
+//       seller_id: parseInt(req?.query?.seller_id),
+//       product_id: parseInt(req?.query?.product_id),
+//     };
+//     //* Check api params
+//     const validationResult = orderValidations.getOrderBySellerIdValidator(body);
+//     if (validationResult) {
+//       res.json(validationResult);
+//       return;
+//     }
+//     const model = new Order(body?.id);
+//     result = await orderDao.getOrdersBySellerId(model);
+//     if (result.length < 1) {
+//       res.json({
+//         message: "Order does not exist!",
+//         data: result,
+//         status: STATUS_CODES.BAD_REQUEST_CODE,
+//       });
+//       return;
+//     }
+
+//     res.json({
+//       message: "Successfully retrieved all order!",
+//       data: result,
+//       status: STATUS_CODES.SUCCESS_CODE,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.json({
+//       message: `An unexpected error occurred: ${error}`,
+//       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
+//     });
+//   }
+// };
 export const getAllOrderList = async (req, res) => {
   try {
     let result;
