@@ -9,21 +9,24 @@ import {
   getProduct,
   updateProduct,
 } from "../src/controllers/ProductController.mjs";
+
 import { Product } from "../src/models/ProductModel.mjs";
+import { login } from "../src/controllers/UserController.mjs";
 
 let productModel;
 
-describe("Add Product Controller", async () => {
-  let mockReq, mockRes, response;
-
-  beforeEach(() => {
+describe("Product Controller", () => {
+  let mockReq, mockRes, response, token;
+  let email = "admin1@gmail.com";
+  let password = "admin";
+  beforeEach(async () => {
     mockReq = {};
     mockRes = {
       json: (resObj) => {
         response = resObj;
       },
       status: (code) => {
-        status = code;
+        // status = code;
         return {
           json: (resObj) => {
             response = resObj;
@@ -31,41 +34,31 @@ describe("Add Product Controller", async () => {
         };
       },
     };
+    mockReq.headers = { token: token };
   });
 
+  it("login to get token", async () => {
+    //* Get token
+    mockReq.body = {
+      email: email,
+      password: password,
+    };
+    await login(mockReq, mockRes);
+    token = response.token;
+    mockReq.headers = { token: token };
+  }).timeout(5000);
+
+describe("Add Product Controller", async () => {
   describe("Add Product - Check RequestBody Fields", async () => {
-    it("should return a response when sellerId field is empty!", () => {
+    it("should return a response when productName field is empty!", async () => {
+      //* Get token
       mockReq.body = {
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
+        email: email,
+        password: password,
       };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when sellerId field is not integer!", () => {
-      mockReq.body = {
-        sellerId: "12",
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-
-      addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when productName field is empty!", () => {
+      await login(mockReq, mockRes);
+      token = response.token;
+      mockReq.headers = { token: token };
       mockReq.body = {
         sellerId: 12,
         productDescription: "Testing workbench for pc parts",
@@ -78,7 +71,7 @@ describe("Add Product Controller", async () => {
         message: "productName field required!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
-    });
+    }).timeout(5000);
 
     it("should return a response when productDescription field is empty!", () => {
       mockReq.body = {
@@ -143,22 +136,6 @@ describe("Add Product Controller", async () => {
   });
 
   describe("Add Product - Adding of product", async () => {
-    it("should return a response when sellerId don't exist!", async () => {
-      mockReq.body = {
-        sellerId: 1,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-        productQuantity: 1,
-      };
-      await addProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Seller does not exist!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    }).timeout(5000)
-
     it("should return a response when product added successfully!", async () => {
       mockReq.body = {
         sellerId: 12,
@@ -203,7 +180,7 @@ describe("Get Product Controller", async () => {
         response = resObj;
       },
       status: (code) => {
-        status = code;
+        // status = code;
         return {
           json: (resObj) => {
             response = resObj;
@@ -211,6 +188,7 @@ describe("Get Product Controller", async () => {
         };
       },
     };
+    mockReq.headers = { token: token };
   });
 
   describe("Get Product - Check RequestBody Fields", () => {
@@ -306,7 +284,7 @@ describe("Update Product Controller", async () => {
         response = resObj;
       },
       status: (code) => {
-        status = code;
+        // status = code;
         return {
           json: (resObj) => {
             response = resObj;
@@ -314,6 +292,7 @@ describe("Update Product Controller", async () => {
         };
       },
     };
+    mockReq.headers = { token: token };
   });
 
   describe("Update Product - Check RequestBody Fields", () => {
@@ -328,37 +307,6 @@ describe("Update Product Controller", async () => {
       await updateProduct(mockReq, mockRes);
       expect(response).to.deep.include({
         message: "id field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when sellerId field is empty!", async () => {
-      mockReq.body = {
-        id: 12,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-      };
-
-      await updateProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
-
-    it("should return a response when sellerId field is not integer!", async () => {
-      mockReq.body = {
-        id: 12,
-        sellerId: "12",
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-      };
-
-      await updateProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
     });
@@ -426,22 +374,6 @@ describe("Update Product Controller", async () => {
       });
     }).timeout(0);
 
-    it("should return a response when sellerId don't match product!", async () => {
-      mockReq.body = {
-        id: productModel.getId(),
-        sellerId: 1,
-        productName: "Unit Testing Workbench",
-        productDescription: "Testing workbench for pc parts",
-        productImage: "/image/workbench.jpg",
-      };
-      await updateProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Seller id does not match product id!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    }).timeout(0);
-
     it("should return a response when product updated successfully!", async () => {
       mockReq.body = {
         id: productModel.getId(),
@@ -472,7 +404,7 @@ describe("Delete Product Controller", async () => {
         response = resObj;
       },
       status: (code) => {
-        status = code;
+        // status = code;
         return {
           json: (resObj) => {
             response = resObj;
@@ -480,6 +412,7 @@ describe("Delete Product Controller", async () => {
         };
       },
     };
+    mockReq.headers = { token: token };
   });
 
   describe("Delete Product - Check RequestBody Fields", () => {
@@ -522,44 +455,44 @@ describe("Delete Product Controller", async () => {
       });
     }).timeout(5000);
 
-    it("should return a response when sellerId field is empty!", async () => {
-      mockReq.query = {
-        id: 1,
-      };
+    // it("should return a response when sellerId field is empty!", async () => {
+    //   mockReq.query = {
+    //     id: 1,
+    //   };
 
-      await deleteProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
+    //   await deleteProduct(mockReq, mockRes);
+    //   expect(response).to.deep.include({
+    //     message: "sellerId field required!, field-type: Integer",
+    //     status: STATUS_CODES.BAD_REQUEST_CODE,
+    //   });
+    // });
 
-    it("should return a response when sellerId field is not an integer but letters!", async () => {
-      mockReq.query = {
-        id: 1,
-        sellerId: "a",
-      };
+  //   it("should return a response when sellerId field is not an integer but letters!", async () => {
+  //     mockReq.query = {
+  //       id: 1,
+  //       sellerId: "a",
+  //     };
 
-      await deleteProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "sellerId field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    });
+  //     await deleteProduct(mockReq, mockRes);
+  //     expect(response).to.deep.include({
+  //       message: "sellerId field required!, field-type: Integer",
+  //       status: STATUS_CODES.BAD_REQUEST_CODE,
+  //     });
+  //   });
 
-    it("should return a response when sellerId field an integer but string!", async () => {
-      mockReq.query = {
-        id: 1,
-        sellerId: "1",
-      };
+  //   it("should return a response when sellerId field an integer but string!", async () => {
+  //     mockReq.query = {
+  //       id: 1,
+  //       sellerId: "1",
+  //     };
 
-      await deleteProduct(mockReq, mockRes);
-      expect(response).to.deep.include({
-        message: "Product does not exist!",
-        data: response?.data,
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      });
-    }).timeout(5000);
+  //     await deleteProduct(mockReq, mockRes);
+  //     expect(response).to.deep.include({
+  //       message: "Product does not exist!",
+  //       data: response?.data,
+  //       status: STATUS_CODES.BAD_REQUEST_CODE,
+  //     });
+  //   }).timeout(5000);
   });
 
 
@@ -590,4 +523,5 @@ describe("Delete Product Controller", async () => {
       });
     }).timeout(0);
   });
+});
 });

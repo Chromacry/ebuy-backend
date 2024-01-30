@@ -58,7 +58,6 @@ export const addOrder = async (req, res) => {
       );
       result = await orderDao.addOrder(model);
     }
-
     res.json({
       message: "Added Order successfully!",
       data: result,
@@ -132,7 +131,6 @@ export const getOrders = async (req, res) => {
     });
   }
 };
-
 // export const getOrdersBySellerId = async (req, res) => {
 //   try {
 //     let result;
@@ -225,8 +223,10 @@ export const updateOrder = async (req, res) => {
     }
     const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
+      // id: parseInt(req?.body?.id),
       id: req?.body?.id,
       product_id: parseInt(req?.body?.productId),
+      // user_id: parseInt(req?.body?.userId),
       user_id: decoded?.id,
       order_quantity: parseInt(req?.body?.orderQuantity),
       order_status: req?.body?.orderStatus,
