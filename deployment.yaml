@@ -15,5 +15,6 @@ spec: # defines the desired state of the Deployment.
       containers:
       - name: projectx-backend-container
         image: 2204412g/ebuy-backend-projectx-backend:latest
+        imagePullPolicy: "Always"
         ports:
         - containerPort: 8080 # specifies the port that the application listens on
