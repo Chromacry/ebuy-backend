@@ -59,7 +59,7 @@ export class OrderDao {
         if (error) {
           reject(error);
         } else {
-          queryCount = results;x``
+          queryCount = results;
         }
       });
       const sql = `SELECT orders.id, orders.order_quantity, orders.order_status, orders.created_time, orders.tracking_number, orders.product_price, users.username
@@ -83,6 +83,41 @@ export class OrderDao {
       dbConnection.end();
     });
   }
+
+  // getOrdersBySellerId(model) {
+  //   return new Promise((resolve, reject) => {
+  //     const dbConnection = mysql.createConnection(dbConfig);
+  //     dbConnection.connect();
+
+  //     // Step 1: Get seller_id from the "products" table
+  //     const getSellerIdQuery = `SELECT seller_id FROM products WHERE product_id = ?`;
+  //     dbConnection.query(getSellerIdQuery, [model.getId()], (sellerIdError, sellerIdResults) => {
+  //       if (sellerIdError) {
+  //         dbConnection.end();
+  //         reject(sellerIdError);
+  //       } else {
+  //         // Check if a seller_id was found
+  //         if (sellerIdResults.length === 0) {
+  //           dbConnection.end();
+  //           reject(new Error('Seller ID not found for the given product ID'));
+  //         } else {
+  //           const sellerId = sellerIdResults[0].seller_id;
+
+  //           // Step 2: Get orders details based on the seller_id (user_id in "order" table)
+  //           const getOrdersQuery = 'SELECT * FROM orders WHERE user_id = ?';
+  //           dbConnection.query(getOrdersQuery, [sellerId], (ordersError, ordersResults) => {
+  //             dbConnection.end();
+  //             if (ordersError) {
+  //               reject(ordersError);
+  //             } else {
+  //               resolve(ordersResults);
+  //             }
+  //           });
+  //         }
+  //       }
+  //     });
+  //   });
+  // }
 
   getOrdersBySellerId(model) {
     return new Promise((resolve, reject) => {

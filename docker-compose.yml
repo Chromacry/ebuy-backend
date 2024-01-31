@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: 2204412g/projectx-backend-init-img:latest
     restart: always
     ports:
       - "8080:8080"

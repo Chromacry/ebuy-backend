@@ -119,7 +119,7 @@ describe("Add Review Controller", async () => {
         userId: 13,
         reviewRating: 1,
         reviewContent: "Unit Testing Content",
-        productId: 2,
+        productId: 149,
         reviewImage: "/image/workbench.jpg",
       };
       await addReview(mockReq, mockRes);

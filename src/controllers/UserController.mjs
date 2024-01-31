@@ -421,7 +421,6 @@ export const getUserByUserId = async (req, res) => {
 
   try {
     const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
-    console.log(req.body.userIds);
     const model = {
       userIds : req.body.userIds
     }
@@ -446,7 +445,6 @@ export const getUserByUserId = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-    console.error("Error in getUser:", error);
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
