@@ -1,0 +1,97 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.2.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/Chromacry/ebuy-backend.git</url>
+        <credentialsId>5247492c-564e-4a57-8246-db3e34c5d660</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>release</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>H/5 * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>npm install</command>
+      <configuredLocalRules/>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>npm run test:productControllerBuild</command>
+      <configuredLocalRules/>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)&#xd;
+docker-compose build&#xd;
+docker tag jenkins-projectx-jenkins:latest 2204412g/jenkins-projectx-jenkins:latest&#xd;
+docker push 2204412g/jenkins-projectx-jenkins:latest</command>
+      <configuredLocalRules/>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>az aks get-credentials --resource-group &quot;dvopsResourceGroup&quot; --name &quot;dvopsAKSCluster&quot; --overwrite-existing --subscription %AZURE_ID%</command>
+      <configuredLocalRules/>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>kubectl apply -f deployment.yaml&#xd;
+kubectl apply -f deploy-service.yaml&#xd;
+kubectl rollout history deployment/projectx-backend-deployment&#xd;
+kubectl get pods&#xd;
+kubectl get services</command>
+      <configuredLocalRules/>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper plugin="credentials-binding@642.v737c34dea_6c2">
+      <bindings>
+        <org.jenkinsci.plugins.credentialsbinding.impl.UsernamePasswordMultiBinding>
+          <credentialsId>5247492c-564e-4a57-8246-db3e34c5d660</credentialsId>
+          <usernameVariable>DOCKER_USERNAME</usernameVariable>
+          <passwordVariable>DOCKER_PASSWORD</passwordVariable>
+        </org.jenkinsci.plugins.credentialsbinding.impl.UsernamePasswordMultiBinding>
+        <org.jenkinsci.plugins.credentialsbinding.impl.StringBinding>
+          <credentialsId>azure_id</credentialsId>
+          <variable>AZURE_ID</variable>
+        </org.jenkinsci.plugins.credentialsbinding.impl.StringBinding>
+      </bindings>
+    </org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper>
+    <EnvInjectBuildWrapper plugin="envinject@2.908.v66a_774b_31d93">
+      <info>
+        <propertiesContent>DATABASE_HOST = sg-nme-web623.main-hosting.eu
+DATABASE_USER = u866934417_SuperQuadUser
+DATABASE_PASSWORD = *AtAyatX7x
+DATABASE_PORT = 3306
+DATABASE_SCHEMA = u866934417_SuperQuad
+JWT_SECRET = 61897btyeur67%$&amp;b6589876476^%$^3v
+JWT_EXPIRES = 90d
+SERVER_PORT = 8080</propertiesContent>
+        <secureGroovyScript plugin="script-security@1275.v23895f409fb_d">
+          <script></script>
+          <sandbox>false</sandbox>
+        </secureGroovyScript>
+        <loadFilesFromMaster>false</loadFilesFromMaster>
+      </info>
+    </EnvInjectBuildWrapper>
+  </buildWrappers>
+</project>

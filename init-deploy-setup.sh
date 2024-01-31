@@ -1,6 +1,6 @@
 #!/bin/bash
 #* Configuration
-#* Use this command to get ID, Run inside ur cmd/powershell -> $az account show --query "id" --output tsv
+#* Use this command to get ID, Run inside ur cmd/powershell -> $ az account show --query "id" --output tsv
 export azure_account_id="Your ID"
 export kube_config_filedrive="c" #* Default is c drive. Specify if needed. 
 export your_windows_account_username="" #* Enter your windows account username
