@@ -10,8 +10,8 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-      - TF_VAR_AZURE_APP_ID=${AZURE_APP_ID}
-      - TF_VAR_AZURE_PASSWORD=${AZURE_PASSWORD}
+      - TF_VAR_azure_app_id=${azure_app_id}
+      - TF_VAR_azure_password=${azure_password}
     volumes:
       - ./:/projectx-backend
       - ./projectx-backend/node_modules
