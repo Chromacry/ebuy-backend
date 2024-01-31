@@ -6,7 +6,8 @@
   "main": "src/index.mjs",
   "c8": {
     "include": [
-      "src/**/*.mjs"
+      "src/**/*.mjs",
+      "ui_test/*.mjs"
     ],
     "exclude": [
       "tests/*.mjs",
@@ -36,6 +37,8 @@
     "test:orderController": "c8 mocha 'tests/OrderController.test.mjs'",
     "coverage": "c8 mocha tests/*.test.mjs",
     "browsertest": "mocha tests/HomePage.test.mjs",
+    "reviewtest": "c8 mocha ui_test/ReviewsSelenium.test.mjs",
+    "ui-coverage":"c8 mocha ui_test/*test.mjs",
     "test": "mocha tests/*.test.mjs",
     "start": "node src/index.mjs",
     "dev": "nodemon"
