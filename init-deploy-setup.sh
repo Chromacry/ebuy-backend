@@ -29,7 +29,7 @@ az aks install-cli
 az aks get-credentials --resource-group dvopsResourceGroup --name dvopsAKSCluster
 
 
-az aks get-credentials --resource-group "dvopsResourceGroup" --name "dvopsAKSCluster" --overwrite-existing --subscription $azure_account_id
+# az aks get-credentials --resource-group "dvopsResourceGroup" --name "dvopsAKSCluster" --overwrite-existing --subscription $azure_account_id
 
 export KUBECONFIG=/mnt/c/Users/$your_windows_account_username/.kube/config
 
