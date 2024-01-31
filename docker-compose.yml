@@ -10,6 +10,8 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
+      AZURE_APP_ID: ${AZURE_APP_ID}
+      AZURE_PASSWORD: ${AZURE_PASSWORD}
     volumes:
       - ./:/projectx-backend
       - ./projectx-backend/node_modules
