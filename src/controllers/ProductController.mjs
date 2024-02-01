@@ -6,6 +6,7 @@ import { UserDao } from "../dao/UserDao.mjs";
 import { User } from "../models/UserModel.mjs"
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import { ProductValidations } from "../utils/ProductBodyValidationUtil.mjs";
+import { logger } from "../utils/LoggingUtil.mjs";
 const userDao = new UserDao();
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
