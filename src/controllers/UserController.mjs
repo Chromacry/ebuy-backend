@@ -9,27 +9,29 @@ import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { UserDao } from "../dao/UserDao.mjs";
 import { User } from "../models/UserModel.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
+import { logger } from "../utils/LoggingUtil.mjs";
 dotenv.config({ path: `.env.local`, override: true });
 
 export const register = async (req, res) => {
   const userDao = new UserDao();
   const { username, email, password } = req.body;
-
-  if (!username || !email || !password) {
-    return res.json({
-      message: "Username, email, and password are required!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
-    });
-  }
-  // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.json({
-      message: "Invalid email format!",
-      status: STATUS_CODES.BAD_REQUEST_CODE,
-    });
-  }
+  
   try {
+    
+    if (!username || !email || !password) {
+      return res.json({
+        message: "Username, email, and password are required!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.json({
+        message: "Invalid email format!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
     const model = new User(
       null,
       username,
@@ -43,6 +45,7 @@ export const register = async (req, res) => {
     console.log(model)
     const emailExists = await userDao.checkEmailExists(model);
     if (emailExists) {
+      
       return res.json({
         message: "Email has already been registered!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
@@ -52,13 +55,14 @@ export const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     model.setPassword(hashedPassword);
     await userDao.addUser(model);
-
+    logger.info(`User [${username}] has been registered successfully!`)
     return res.json({
       message: "Registration successful!",
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
-    console.error("Error during registration:", error);
+    // console.error("Error during registration:", error);
+    logger.error(`An error has occurred! Failed to register user - ${error}`)
     return res.json({
       message: "Internal server error!",
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -113,14 +117,16 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES }
     );
-
+    logger.info(`User [${user[0]?.email}] has been logged in successfully!`)
+    
     return res.json({
       message: "Login successful!",
       status: STATUS_CODES.SUCCESS_CODE,
       token: token,
     });
   } catch (error) {
-    console.error("Error during login:", error);
+    // console.error("Error during login:", error);
+    logger.error(`An error has occurred! Failed to login user - ${error}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -150,7 +156,7 @@ export const getUser = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-
+    logger.silly(`User [${user[0]?.email}] data has been retrieved successfully!`)
     return res.json({
       message: "Authenticated",
       username: user[0].username,
@@ -167,7 +173,8 @@ export const getUser = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-    console.error("Error in getUser:", error);
+    // console.error("Error in getUser:", error);
+    logger.error(`An error has occurred - ${error.message}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -220,6 +227,7 @@ export const passwordReset = async (req, res) => {
     model.setEmail(user[0].id);
     model.setPassword(hashedPassword);
     await userDao.updateUserPassword(model);
+    logger.info(`User [${user[0]?.email}] has successfully reset their password!`)
 
     return res.json({
       message: "Password Reset Successfully!",
@@ -233,7 +241,7 @@ export const passwordReset = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-
+    logger.error(`An error has occurred - Failed to reset user password. ${error.message}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -270,6 +278,7 @@ export const updateUsername = async (req, res) => {
     model.setId(decoded.id);
     model.setUsername(newUsername);
     await userDao.updateUsername(model);
+    logger.info(`User [${currentUser[0].email}] has successfully updated their username from [${currentUser[0]?.username}] to [${newUsername}].`)
 
     return res.json({
       message: "Username updated successfully!",
@@ -282,6 +291,8 @@ export const updateUsername = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
+    logger.error(`An error has occurred - Failed to update user's username. ${error.message}`)
+
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -316,7 +327,7 @@ export const updateProfileImage = async (req, res) => {
       null
     );
     await userDao.updateProfileImage(model);
-
+    logger.info(`User [${decoded.id}] has successfully updated their profile image!`)
     return res.json({
       message: "Profile image updated successfully!",
       status: STATUS_CODES.SUCCESS_CODE,
@@ -329,7 +340,7 @@ export const updateProfileImage = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-
+    logger.error(`An error has occurred - Failed to update user profile picture. ${error.message}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -358,7 +369,7 @@ export const updateUserToSeller = async (req, res) => {
     model.setId(decoded.id);
     model.setIsSeller(1);
     await userDao.updateUserToSeller(model);
-
+    logger.info(`User [${currentUser[0].email}] account has successfully registered as seller!`)
     return res.json({
       message: "User updated as seller successfully!",
       status: STATUS_CODES.SUCCESS_CODE,
@@ -370,6 +381,7 @@ export const updateUserToSeller = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
+    logger.error(`An error has occurred - Failed to register user as seller. ${error.message}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",
@@ -388,6 +400,7 @@ export const deleteAccount = async (req, res) => {
     const result = await userDao.deleteUser(model);
 
     if (result.affectedRows > 0) {
+      
       return res.json({
         message: "Account Deleted Successfully!",
         status: STATUS_CODES.SUCCESS_CODE,
@@ -432,7 +445,7 @@ export const getUserByUserId = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-
+    logger.silly(`User [${result[0].email}] data has been retrieved successfully!`)
     return res.json({
       message: "Users successfully Retrieved!",
       data: result,
@@ -445,6 +458,7 @@ export const getUserByUserId = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
+    logger.error(`An error has occurred - Failed to retrieve user data. ${error.message}`)
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message || "Internal server error!",

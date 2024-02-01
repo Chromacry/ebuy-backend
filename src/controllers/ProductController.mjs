@@ -6,6 +6,7 @@ import { UserDao } from "../dao/UserDao.mjs";
 import { User } from "../models/UserModel.mjs"
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import { ProductValidations } from "../utils/ProductBodyValidationUtil.mjs";
+import { logger } from "../utils/LoggingUtil.mjs";
 const userDao = new UserDao();
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
@@ -16,13 +17,15 @@ export const getAllProducts = async (req, res) => {
     const body = {};
     const model = new Product();
     result = await productDao.getAllProducts(model);
+    logger.silly(`Products has been successfully retrieved!`)
     res.json({
       message: "Successfully retrieved all products!",
       data: result,
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`An error has occurred - Failed to retrieve all products. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -57,13 +60,15 @@ export const getAllProductList = async (req, res) => {
     model.setLimit(body?.limit)
     model.setOffset(body?.offset)
     result = await productDao.getProductList(model);
+    logger.silly(`Product List has been successfully retrieved!`)
     res.json({
       message: "Successfully retrieved all products!",
       data: result,
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`An error has occurred - Failed to add user review onto product. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -94,6 +99,7 @@ export const getProduct = async (req, res) => {
       });
       return  
     }
+    logger.silly(`Product data has been successfully retrieved!`)
 
     res.json({
       message: "Successfully retrieved product!",
@@ -102,7 +108,8 @@ export const getProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`An error has occurred - Failed to retrieve product. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -160,11 +167,11 @@ export const addProduct = async (req, res) => {
     const userModel = new User(body?.seller_id);
     
     //* Check if seller_id exists
-    result = await userDao.getUserBySellerId(userModel)
+    let userresult = await userDao.getUserBySellerId(userModel)
     if (result.length < 1) {
       res.json({
         message: "Seller does not exist!",
-        data: result,
+        data: userresult,
         status: STATUS_CODES.BAD_REQUEST_CODE,
       });
       return;
@@ -172,6 +179,7 @@ export const addProduct = async (req, res) => {
 
     //* Add new product
     result = await productDao.addProduct(model)
+    logger.info(`Seller user [${userresult[0].email}] has successfully added [${body?.product_name}] as a new product.`)
     res.json({
       message: "Added product successfully!",
       data: result,
@@ -179,6 +187,7 @@ export const addProduct = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    logger.error(`An error has occurred - Failed to add product. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -221,6 +230,7 @@ export const deleteProduct = async (req, res) => {
     }
 
     result = await productDao.deleteProduct(model)
+    logger.info(`Seller user [${body?.seller_id}] has successfully deleted product [${result[0].product_name}].`)
     res.json({
       message: "Deleted product successfully!",
       data: result,
@@ -228,7 +238,8 @@ export const deleteProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`An error has occurred - Failed to delete a product. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
@@ -306,15 +317,17 @@ export const updateProduct = async (req, res) => {
     //   return;
     // }
 
-    result = await productDao.updateProduct(model)
-    if (result)
-    res.json({
-      message: "Updated product successfully!",
-      data: result,
-      status: STATUS_CODES.SUCCESS_CODE,
-    });
+    let updateresult = await productDao.updateProduct(model)
+    if (updateresult)
+      logger.info(`Seller user [${body?.seller_id}] has successfully updated product from [${result[0].product_name}] to [${body?.product_name}]`)
+      res.json({
+        message: "Updated product successfully!",
+        data: updateresult,
+        status: STATUS_CODES.SUCCESS_CODE,
+      });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`An error has occurred - Failed to update product. ${error.message}`)
     res.json({
       message: `An unexpected error occurred: ${error}`,
       status: STATUS_CODES.INTERNAL_SERVER_ERROR_CODE,
