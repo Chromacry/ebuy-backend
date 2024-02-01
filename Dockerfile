@@ -32,8 +32,8 @@ RUN npm install
 RUN npm rebuild bcrypt --build-from-source
 
 RUN npm install pm2 -g
-ENV PM2_PUBLIC_KEY s0r2y9cwglf8ufp
-ENV PM2_SECRET_KEY yvx18ugxlehgi29
+ENV PM2_PUBLIC_KEY ${PM2_PUBLIC_KEY}
+ENV PM2_SECRET_KEY ${PM2_SECRET_KEY}
 
 CMD ["pm2-runtime", "src/index.mjs"]
 EXPOSE 8080
