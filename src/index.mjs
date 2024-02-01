@@ -7,6 +7,8 @@ import BaseRoute from "./routes/BaseRoute.mjs";
 import expressStatusMonitor from "express-status-monitor";
 import promclient from 'prom-client'
 import morgan from 'morgan';
+import path,{ dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import { logger } from "./utils/LoggingUtil.mjs";
 
@@ -14,21 +16,35 @@ import { logger } from "./utils/LoggingUtil.mjs";
 const app = express();
 const port = process.env.SERVER_PORT || 8080;
 
-class MyStream {
-  write(text) {
-      logger.http(text.replace(/\n$/, ''));
-  }
-}
 
 app.use(express.json({
   limit: '100mb'
 }))
 
-app.use(cors())
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const publicPath = path.join(__dirname, '../public');
+app.use(express.static(publicPath))
+app.use(cors({
+  "origin": "*",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": false,
+  "optionsSuccessStatus": 204
+}))
 app.use(express.urlencoded({ extended: true}))
 app.use(expressStatusMonitor());
 
-let myStream = new MyStream()
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'))
+})
+
+class MyStream {
+  write(text) {
+    logger.http(text.replace(/\n$/, ''));
+  }
+}
+  let myStream = new MyStream()
 app.use(morgan('tiny', { stream: myStream }))
 
 
@@ -44,6 +60,7 @@ app.get('/metrics', async (req, res) => {
     res.status(500).send('Internal Server Error');
 }
 })
+
 
 app.listen(port,'0.0.0.0', () => {
   // console.log(`Server is running on http://0.0.0.0:${port}`);
