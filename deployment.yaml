@@ -14,7 +14,7 @@ spec: # defines the desired state of the Deployment.
     spec: # specifies the container(s) to run
       containers:
       - name: projectx-container
-        image: $DOCKER_IMAGE_REPO/projectx-backend-init-img:v1
+        image: $DOCKER_IMAGE_REPO/projectx-backend-init-img:v2
         imagePullPolicy: "Always"
         ports:
         - containerPort: 8080 # specifies the port that the application listens on
