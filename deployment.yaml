@@ -6,15 +6,15 @@ spec: # defines the desired state of the Deployment.
   replicas: 1 # specifies how many identical replicas (pods) of the application should be maintained, in this case, 2, which means Kubernetes will ensure that two pods running the specified container are always available
   selector:
     matchLabels:
-      app: projectx-backend
+      app: projectx
   template: # defines the pod template used by the Deployment. It specifies the pod's metadata and the container(s) to run.
     metadata: #specifies the pod's metadata
       labels:
-        app: projectx-backend
+        app: projectx
     spec: # specifies the container(s) to run
       containers:
-      - name: projectx-backend-container
-        image: $DOCKER_IMAGE_REPO/projectx-backend-init-img:latest
+      - name: projectx-container
+        image: $DOCKER_IMAGE_REPO/projectx-backend-init-img:v1
         imagePullPolicy: "Always"
         ports:
         - containerPort: 8080 # specifies the port that the application listens on
