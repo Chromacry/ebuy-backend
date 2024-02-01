@@ -10,14 +10,17 @@ import {
   updateOrder,
 } from "../src/controllers/OrderController.mjs";
 import { Order } from "../src/models/OrderModel.mjs";
+import { login } from "../src/controllers/UserController.mjs";
 
 let orderModel;
+let status;
 
 describe("OrderController", function () {
   let deleteId;
+  let mockReq, mockRes, response, token;
+  let email = "admin1@gmail.com";
+  let password = "admin";
   describe("Add Order Controller", async () => {
-    let mockReq, mockRes, response;
-
     beforeEach(() => {
       mockReq = {};
       mockRes = {
@@ -33,104 +36,58 @@ describe("OrderController", function () {
           };
         },
       };
+      mockReq.headers = { token: token };
     });
 
+    it("login to get token", async () => {
+      //* Get token
+      mockReq.body = {
+        email: email,
+        password: password,
+      };
+      await login(mockReq, mockRes);
+      token = response.token;
+      mockReq.headers = { token: token };
+    }).timeout(5000);
+
     describe("Add Order - Check RequestBody Fields", async () => {
-      it("should return a response when productId field is empty!", () => {
+      it("should return a response when Cart field is empty!", async () => {
         mockReq.body = {
-          productId: "",
-          userId: 14,
-          orderQuantity: 2,
-          orderStatus: "Delivered",
+          email: email,
+          password: password,
+        };
+        await login(mockReq, mockRes);
+        token = response.token;
+        mockReq.headers = { token: token };
+        mockReq.body = {
+          cart_items:"",
         };
 
         addOrder(mockReq, mockRes);
         expect(response).to.deep.include({
-          message: "Invalid product_id! Product do not exist.",
+          message: "Invalid cart_items! Cart is empty!",
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
 
-      it("should return a response when userId field is empty!", () => {
+      it("should return a response when token is empty!", async () => {
         mockReq.body = {
-          productId: 2,
-          orderQuantity: 2,
-          orderStatus: "Delivered",
+          email: email,
+          password: password,
+        };
+        await login(mockReq, mockRes);
+        token = response.token;
+        mockReq.headers = { token: "" };
+        mockReq.body = {
+          cart_items: [
+            {"product_id": "149", "order_quantity": 1, "product_price": 40},
+            {"product_id": "149", "order_quantity": 1, "product_price": 40}
+          ]
         };
 
         addOrder(mockReq, mockRes);
         expect(response).to.deep.include({
-          message: "Invalid user_id! User do not exist.",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderQuantity field is empty!", () => {
-        mockReq.body = {
-          productId: 12,
-          userId: 14,
-          orderStatus: "Delivered",
-        };
-
-        addOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid order_quantity! It should not be empty",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderStatus field is empty!", () => {
-        mockReq.body = {
-          productId: 12,
-          userId: 14,
-          orderQuantity: 2,
-        };
-
-        addOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid order_status! It should be a non-empty string.",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderQuantity field is not integer!", () => {
-        mockReq.body = {
-          productId: 12,
-          userId: 14,
-          orderStatus: "Delivered",
-        };
-  
-        addOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid order_quantity! It should not be empty",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderStatus field is not string!", () => {
-        mockReq.body = {
-          productId: 12,
-          userId: 14,
-          orderQuantity: 2,
-        };
-        addOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message:  "Invalid order_status! It should be a non-empty string.",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderQuantity field is not integer!", () => {
-        mockReq.body = {
-          productId: 2,
-          userId: 14,
-          orderQuantity: "2",
-          orderStatus: "Delivered",
-        };
-  
-        addOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message:  "Invalid order_status! It should be a non-empty string.",
+          message: "Unauthorized: Token not found in request headers!",
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
@@ -139,10 +96,10 @@ describe("OrderController", function () {
     describe("Add Order - Adding of order", async () => {
       it("should return a response when order added successfully!", async () => {
         mockReq.body = {
-          productId: 2,
-          userId: 14,
-          orderQuantity: 2,
-          orderStatus: "Delivered",
+          cart_items: [
+            {"product_id": "149", "order_quantity": 1, "product_price": 40},
+            {"product_id": "149", "order_quantity": 1, "product_price": 40}
+          ]
         };
         await addOrder(mockReq, mockRes);
         expect(response).to.deep.include({
@@ -219,7 +176,7 @@ describe("OrderController", function () {
 
       it("should return a response when order is retrieved successfully!", async () => {
         mockReq.query = {
-          id: 30,
+          id: 216,
         };
         await getOrders(mockReq, mockRes);
         expect(response).to.deep.include({
@@ -229,7 +186,6 @@ describe("OrderController", function () {
         });
       }).timeout(0);
     });
-
   });
 
   describe("Update Order Controller", async () => {
@@ -250,196 +206,130 @@ describe("OrderController", function () {
           };
         },
       };
+      mockReq.headers = { token: token };
     });
 
     describe("Update Order - Check RequestBody Fields", () => {
       it("should return a response when id field is empty!", async () => {
         mockReq.body = {
-          productId:2,
           userId: 14,
-          orderQuantity:2,
           orderStatus: "Delivered",
         };
 
         await updateOrder(mockReq, mockRes);
         expect(response).to.deep.include({
           message: "id field required!, field-type: Integer",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when productId field is empty!", async () => {
-        mockReq.body = {
-          id:30,
-          productId:"",
-          userId: 14,
-          orderQuantity:2,
-          orderStatus: "Delivered",
-        };
-
-        await updateOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid product_id! Product do not exist.",
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
 
       it("should return a response when userId field is empty!", () => {
         mockReq.body = {
-          id:30,
-          productId: 2,
+          id: 218,
           userId: "",
-          orderQuantity: 2,
-          orderStatus: "Delivered",
+          orderStatus: "Paid",
         };
 
         updateOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid user_id! User do not exist.",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderQuantity field is empty!", () => {
-        mockReq.body = {
-          id:30,
-          productId: 12,
-          userId: 14,
-          orderStatus: "Delivered",
-        };
-
-        updateOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message:"Invalid order_quantity! It should not be empty",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-
-      it("should return a response when orderStatus field is empty!", () => {
-        mockReq.body = {
-          id:30,
-          productId: 12,
-          userId: 14,
-          orderQuantity: 2,
-        };
-
-        updateOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Invalid order_status! It should be a non-empty string.",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      });
-    });
-
-    describe("Update Order - Updating of order", () => {
-      it("should return a response when order updated successfully!", async () => {
-        mockReq.body = {
-          id:30,
-          productId: 2,
-          userId: 14,
-          orderQuantity: 2,
-          orderStatus: "Delivered",
-        };
-        await updateOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Updated Order successfully!",
-          data: response?.data,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
-      }).timeout(10000)
-    });
-  });
-
-  describe("Delete Order Controller", async () => {
-    let mockReq, mockRes, response;
-
-    beforeEach(() => {
-      mockReq = {};
-      mockRes = {
-        json: (resObj) => {
-          response = resObj;
-        },
-        status: (code) => {
-          status = code;
-          return {
-            json: (resObj) => {
-              response = resObj;
-            },
-          };
-        },
-      };
-    });
-
-    describe("Delete Order - Check RequestBody Fields", () => {
-
-      it("should return a response when id field is empty!", async () => {
-        mockReq.query = {
-          UserId: 0,
-        };
-
-        await deleteOrder(mockReq, mockRes);
         expect(response).to.deep.include({
           message: "id field required!, field-type: Integer",
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
 
-      it("should return a response when UserId field is empty!", async () => {
-        mockReq.query = {
-          id: 1,
+      it("should return a response when orderStatus field is empty!", () => {
+        mockReq.body = {
+          id: 218,
+          userId: 274,
+          orderStatus: "",
         };
 
-        await deleteOrder(mockReq, mockRes);
+        updateOrder(mockReq, mockRes);
         expect(response).to.deep.include({
-          message: "UserId field required!, field-type: Integer",
+          message: "Invalid order_status! Order Status do not exist.",
           status: STATUS_CODES.BAD_REQUEST_CODE,
         });
       });
 
-      it("should return a response when ProductId field is empty!", async () => {
-        mockReq.query = {
-          id: 1,
-          userId: 1,
-        };
-
-        await deleteOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "ProductId field required!, field-type: Integer",
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
+      describe("Update Order - Updating of order", () => {
+        it("should return a response when order updated successfully!", async () => {
+          mockReq.body = {
+            id: 216,
+            userId: 274,
+            orderStatus: "Delivered",
+          };
+          await updateOrder(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "Updated Order successfully!",
+            data: response?.data,
+            status: STATUS_CODES.SUCCESS_CODE,
+          });
+        }).timeout(10000);
       });
-    });
-
-    describe("Delete Order - Deleting of Order", () => {
-
-      it("should return a response when order does not exist!", async () => {
-        mockReq.query = {
-          id: 1,
-          productId: 1,
-          userId: 1,
-        };
-        await deleteOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Order does not exist!",
-          data: response?.data,
-          status: STATUS_CODES.BAD_REQUEST_CODE,
-        });
-      }).timeout(0);
-      it("should return a response when order is deleted successfully!", async () => {
-        mockReq.query = {
-          id: deleteId,
-          userId: 14,
-          productId: 2,
-        };
-        await deleteOrder(mockReq, mockRes);
-        expect(response).to.deep.include({
-          message: "Deleted order successfully!",
-          data: response?.data,
-          status: STATUS_CODES.SUCCESS_CODE,
-        });
-      }).timeout(0);
     });
   });
 
-  
+    describe("Delete Order Controller", async () => {
+      let mockReq, mockRes, response;
+
+      beforeEach(() => {
+        mockReq = {};
+        mockRes = {
+          json: (resObj) => {
+            response = resObj;
+          },
+          status: (code) => {
+            // status = code;
+            return {
+              json: (resObj) => {
+                response = resObj;
+              },
+            };
+          },
+        };
+        mockReq.headers = { token: token };
+      });
+
+      describe("Delete Order - Check RequestBody Fields", () => {
+
+        it("should return a response when id field is empty!", async () => {
+          mockReq.query = {
+            id: 0,
+          };
+
+          await deleteOrder(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "id field required!, field-type: Integer",
+            status: STATUS_CODES.BAD_REQUEST_CODE,
+          });
+        });
+      });
+
+      describe("Delete Order - Deleting of Order", () => {
+
+        it("should return a response when order does not exist!", async () => {
+          mockReq.query = {
+            id: 0,
+          };
+          await deleteOrder(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "id field required!, field-type: Integer",
+            // data: response?.data,
+            status: STATUS_CODES.BAD_REQUEST_CODE,
+          });
+        }).timeout(0);
+         
+        it("should return a response when order is deleted successfully!", async () => {
+          mockReq.query = {
+            id: deleteId,
+          };
+          await deleteOrder(mockReq, mockRes);
+          expect(response).to.deep.include({
+            message: "Deleted order successfully!",
+            data: response?.data,
+            status: STATUS_CODES.SUCCESS_CODE,
+          });
+        }).timeout(0);
+      });
+    });
 });

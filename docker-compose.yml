@@ -4,14 +4,42 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:v1
+      args:
+        - DATABASE_HOST=${DATABASE_HOST}
+        - DATABASE_USER=${DATABASE_USER}
+        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+        - DATABASE_PORT=${DATABASE_PORT}
+        - DATABASE_SCHEMA=${DATABASE_SCHEMA}
+        - JWT_SECRET=${JWT_SECRET}
+        - JWT_EXPIRES=${JWT_EXPIRES}
+        - SERVER_PORT=${SERVER_PORT}
+        - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
+        - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
+        - PM2_SECRET_KEY=${PM2_SECRET_KEY}
+        - TF_VAR_azure_app_id=${azure_app_id}
+        - TF_VAR_azure_password=${azure_password}
+    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:latest
     restart: always
     ports:
       - "8080:8080"
       - "80:80"
       - "443:443"
     environment:
-      - PORT=8080
+      - PORT=${PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_SCHEMA=${DATABASE_SCHEMA}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES=${JWT_EXPIRES}
+      - SERVER_PORT=${SERVER_PORT}
+      - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
+      - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
+      - PM2_SECRET_KEY=${PM2_SECRET_KEY}
+      - TF_VAR_azure_app_id=${TF_VAR_azure_app_id}
+      - TF_VAR_azure_password={TF_VAR_azure_password}      
+
     volumes:
       - ./:/projectx-backend
       - ./projectx-backend/node_modules

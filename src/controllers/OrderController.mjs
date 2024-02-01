@@ -22,8 +22,15 @@ export const addOrder = async (req, res) => {
         status: STATUS_CODES.UNAUTHORIZED_CODE,
       });
     }
-
     const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
+    
+    // Validate if cart_items exist in the request body
+    if (!req.body.cart_items || req.body.cart_items.length === 0) {
+      return res.status(401).json({
+        message: "Invalid cart_items! Cart is empty!",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      });
+    }
     const tracking_number = generateRandomTrackingNumber();
     const body = {
       cart_items: req.body.cart_items,
@@ -32,7 +39,7 @@ export const addOrder = async (req, res) => {
       created_time: getDateTimeNowLocalISOString(),
       tracking_number: tracking_number,
     };
-    console.log(body.tracking_number,"above validation");
+    console.log(body.tracking_number, "above validation");
 
     //* Validate request body
     for (let i = 0; i < body.cart_items.length; i++) {
@@ -60,7 +67,7 @@ export const addOrder = async (req, res) => {
     }
     res.json({
       message: "Added Order successfully!",
-      data: result,
+      data: { result, tracking_number }, 
       status: STATUS_CODES.SUCCESS_CODE,
     });
   } catch (error) {
@@ -71,8 +78,6 @@ export const addOrder = async (req, res) => {
     });
   }
 };
-
-
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -251,7 +256,7 @@ export const updateOrder = async (req, res) => {
     );
 
     //* Check if Order Id exist
-    result = await orderDao.getOrderById(model);
+    result = await orderDao.getOrders(model);
     if (result.length < 1) {
       res.json({
         message: "Order does not exist!",
@@ -260,7 +265,6 @@ export const updateOrder = async (req, res) => {
       });
       return;
     }
-
     result = await orderDao.updateOrder(model);
     res.json({
       message: "Updated Order successfully!",

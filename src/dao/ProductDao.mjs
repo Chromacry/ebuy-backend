@@ -93,7 +93,12 @@ export class ProductDao {
     return new Promise((resolve, reject) => {
       const dbConnection = mysql.createConnection(dbConfig);
       dbConnection.connect();
-      const sql = `SELECT * FROM ${dbTableName} WHERE id = ?`;
+      const sql = `SELECT products.id AS product_id,products.seller_id,products.product_name,products.product_image,products.product_quantity,products.sold_quantity,
+      reviews.content,reviews.rating,reviews.user_id,reviews.created_time,reviews.id AS review_id, users.username,users.profile_image 
+      FROM  ${dbTableName} AS products JOIN reviews ON products.id = reviews.product_id JOIN users ON reviews.user_id = users.id
+      WHERE products.id = ?;`
+      
+
       dbConnection.query(
         sql,
         [model.getId()],

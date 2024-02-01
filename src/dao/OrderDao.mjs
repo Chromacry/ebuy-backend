@@ -88,52 +88,17 @@ export class OrderDao {
   //   return new Promise((resolve, reject) => {
   //     const dbConnection = mysql.createConnection(dbConfig);
   //     dbConnection.connect();
-
-  //     // Step 1: Get seller_id from the "products" table
-  //     const getSellerIdQuery = `SELECT seller_id FROM products WHERE product_id = ?`;
-  //     dbConnection.query(getSellerIdQuery, [model.getId()], (sellerIdError, sellerIdResults) => {
-  //       if (sellerIdError) {
-  //         dbConnection.end();
-  //         reject(sellerIdError);
+  //     const sql = `SELECT orders.product_id,orders.order_quantity,orders.order_status,orders.created_time,orders.tracking_number,users.username FROM ${dbTableName} JOIN users ON orders.user_id = users.id;`;
+  //     dbConnection.query(sql, [model.getId()], (error, results) => {
+  //       if (error) {
+  //         reject(error);
   //       } else {
-  //         // Check if a seller_id was found
-  //         if (sellerIdResults.length === 0) {
-  //           dbConnection.end();
-  //           reject(new Error('Seller ID not found for the given product ID'));
-  //         } else {
-  //           const sellerId = sellerIdResults[0].seller_id;
-
-  //           // Step 2: Get orders details based on the seller_id (user_id in "order" table)
-  //           const getOrdersQuery = 'SELECT * FROM orders WHERE user_id = ?';
-  //           dbConnection.query(getOrdersQuery, [sellerId], (ordersError, ordersResults) => {
-  //             dbConnection.end();
-  //             if (ordersError) {
-  //               reject(ordersError);
-  //             } else {
-  //               resolve(ordersResults);
-  //             }
-  //           });
-  //         }
+  //         resolve(results);
   //       }
   //     });
+  //     dbConnection.end();
   //   });
   // }
-
-  getOrdersBySellerId(model) {
-    return new Promise((resolve, reject) => {
-      const dbConnection = mysql.createConnection(dbConfig);
-      dbConnection.connect();
-      const sql = `SELECT orders.product_id,orders.order_quantity,orders.order_status,orders.created_time,orders.tracking_number,users.username FROM ${dbTableName} JOIN users ON orders.user_id = users.id;`;
-      dbConnection.query(sql, [model.getId()], (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-      dbConnection.end();
-    });
-  }
 
   getOrders(model) {
     return new Promise((resolve, reject) => {
@@ -214,22 +179,4 @@ export class OrderDao {
       dbConnection.end();
     });
   }
-  // getOrderByProductIdAndUserId(model) {
-  //   return new Promise((resolve, reject) => {
-  //     const dbConnection = mysql.createConnection(dbConfig);
-  //     dbConnection.connect();
-  //     const sql = `SELECT * FROM ${dbTableName} WHERE product_id = ? AND user_id = ?`;
-  //     dbConnection.query(
-  //       sql,
-  //       [model.getProductId(), model.getUserId()],
-  //       (error, results) => {
-  //         if (error) {
-  //           reject(error);
-  //         } else {
-  //           resolve(results);
-  //         }
-  //       });
-  //       dbConnection.end();
-  //   });
-  // }
 }
