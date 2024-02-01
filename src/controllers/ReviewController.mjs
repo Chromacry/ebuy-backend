@@ -3,13 +3,22 @@ import { ReviewDao } from "../dao/ReviewDao.mjs";
 import { Review } from "../models/ReviewModel.mjs";
 import { ReviewValidations } from "../utils/ReviewBodyValidationUtil.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
+import jwt from "jsonwebtoken";
 const reviewDao = new ReviewDao();
 const reviewValidations = new ReviewValidations();
 export const addReview = async (req, res) => {
   try {
     let result;
+    const storedToken = req.headers?.token;
+    if (!storedToken) {
+      return res.status(401).json({
+        message: "Unauthorized: Token not found in request headers!",
+        status: STATUS_CODES.UNAUTHORIZED_CODE,
+      });
+    }
+    const decoded = jwt.verify(storedToken, process.env.JWT_SECRET);
     const body = {
-      user_id: req?.body?.userId,
+      user_id: decoded?.id,
       product_id: req?.body?.productId,
       review_rating: req?.body?.reviewRating,
       review_content: req?.body?.reviewContent,
