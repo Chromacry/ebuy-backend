@@ -18,38 +18,18 @@ export class OrderValidations {
   }
   addOrderValidator(body) {
     //* Validation Check for product_id
-    if (!body?.product_id || !Number.isInteger(body?.product_id)) {
+    if (!body.cart_item) {
       return {
-        message: "Invalid product_id! Product do not exist.",
+        message: "Invalid cart_items! Cart is empty!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-
-    //* Validation Check for user_id
-    if (!body?.user_id || !Number.isInteger(body?.user_id)) {
+    const storedToken = req.headers?.token;
+    //* Validation Check for token
+    if (!storedToken) {
       return {
-        message: "Invalid user_id! User do not exist.",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
-
-    //* Validation Check for order_quantity
-    if (
-      !body?.order_quantity ||
-      !Number.isInteger(body?.order_quantity) ||
-      body?.order_quantity <= 0
-    ) {
-      return {
-        message: "Invalid order_quantity! It should not be empty",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
-
-    //* Validation Check for order_status (assuming it's a string)
-    if (!body?.order_status || typeof body?.order_status !== "string") {
-      return {
-        message: "Invalid order_status! It should be a non-empty string.",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
+        message: "Unauthorized: Token not found in request headers!",
+        status: 401,
       };
     }
   }
@@ -62,31 +42,20 @@ export class OrderValidations {
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    //* Validation Check for product_id
-    // if (!body?.product_id || !Number.isInteger(body?.product_id)) {
-    //   return {
-    //     message: "Invalid product_id! Product do not exist.",
-    //     status: STATUS_CODES.BAD_REQUEST_CODE,
-    //   };
-    // }
     //* Validation Check for user_id
     if (!body?.user_id || !Number.isInteger(body?.user_id)) {
       return {
-        message: "Invalid user_id! User do not exist.",
+        message: "Invalid user_id! User do not exist!",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
-    //* Validation Check for order_quantity
-    // if (
-    //   !body?.order_quantity ||
-    //   !Number.isInteger(body?.order_quantity) ||
-    //   body?.order_quantity <= 0
-    // ) {
-    //   return {
-    //     message: "Invalid order_quantity! It should not be empty",
-    //     status: STATUS_CODES.BAD_REQUEST_CODE,
-    //   };
-    // }
+    //* Validation Check for order_status
+    if (!body?.order_status) {
+      return {
+        message: "Invalid order_status! Order Status do not exist.",
+        status: STATUS_CODES.BAD_REQUEST_CODE,
+      };
+    }
     //* Validation Check for order_status (assuming it's a string)
     if (!body?.order_status || typeof body?.order_status !== "string") {
       return {
@@ -101,12 +70,6 @@ export class OrderValidations {
     if (!body?.id || !Number.isInteger(body?.id)) {
       return {
         message: "id field required!, field-type: Integer",
-        status: STATUS_CODES.BAD_REQUEST_CODE,
-      };
-    }
-    if (!body?.user_id || !Number.isInteger(body?.user_id)) {
-      return {
-        message: "UserId field required!, field-type: Integer",
         status: STATUS_CODES.BAD_REQUEST_CODE,
       };
     }
