@@ -38,7 +38,8 @@
     "coverage": "c8 mocha tests/*.test.mjs",
     "browsertest": "mocha tests/HomePage.test.mjs",
     "reviewtest": "c8 mocha ui_test/ReviewsSelenium.test.mjs",
-    "ui-coverage":"c8 mocha ui_test/*test.mjs",
+    "usertest": "c8 mocha ui_test/UserSelenium.test.mjs",
+    "ui-coverage": "c8 mocha ui_test/*test.mjs",
     "test": "mocha tests/*.test.mjs",
     "start": "node src/index.mjs",
     "dev": "nodemon"
@@ -48,6 +49,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "chai-as-promised": "^7.1.1",
     "chai-http": "^4.4.0",
     "chromedriver": "^121.0.0",
     "cors": "^2.8.5",
