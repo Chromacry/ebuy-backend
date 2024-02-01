@@ -25,7 +25,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicPath = path.join(__dirname, '../public');
 app.use(express.static(publicPath))
-app.use(cors())
+app.use(cors({ 
+  origin: '*',
+  allowedHeaders: ['token'],
+  exposedHeaders: ['token']
+}))
 app.use(express.urlencoded({ extended: true}))
 app.use(expressStatusMonitor());
 
