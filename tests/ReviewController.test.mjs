@@ -15,7 +15,7 @@ import {
 } from "../src/controllers/ReviewController.mjs";
 
 let testInsertId;
-
+//let status;
 describe("Add Review Controller", async () => {
   let mockReq, mockRes, response;
 
@@ -26,7 +26,7 @@ describe("Add Review Controller", async () => {
         response = resObj;
       },
       status: (code) => {
-        status = code;
+       // status = code;
         return {
           json: (resObj) => {
             response = resObj;
