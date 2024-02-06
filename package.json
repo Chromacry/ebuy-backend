@@ -52,6 +52,7 @@
     "ordercarttest": "c8 mocha ui_test/ManageCart.test.mjs",
     "edge-ordertest": "c8 mocha ui_test/UIEdge_ManageOrderTable.test.mjs",
     "edge-ordercarttest": "c8 mocha ui_test/UIEdge_ManageCart.test.mjs",
+    "edge-reviewtest": "c8 mocha ui_test/UIEdge_Reviews.test.mjs",
     "test": "mocha tests/*.test.mjs",
     "start": "node src/index.mjs",
     "dev": "nodemon"
