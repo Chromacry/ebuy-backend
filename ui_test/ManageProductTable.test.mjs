@@ -135,7 +135,7 @@ describe("Testing Project X Product Table Page", function(){
       until.elementLocated(By.xpath('.//input[@data-testid="file-input"]'))
     );
     // send filepath
-    const imagePath = "C:/Users/65945/Pictures/cat.jpg";
+    const imagePath = "D:\\TP_3YrCourse\\TP_Yr2\\TP_Sem2\\TP_DEVOPS\\laptop.webp";
     await fileInput.sendKeys(imagePath);
 
     // Submit the form
@@ -234,7 +234,7 @@ describe("Testing Project X Product Table Page", function(){
     loginButton.click();
     const emailInput = await driver.wait(until.elementLocated(By.id("email")));
     await emailInput.click(); // Click on the element
-    await emailInput.sendKeys("admin2@gmail.com");
+    await emailInput.sendKeys("admin1@gmail.com");
     const passwordInput = await driver.wait(
       until.elementLocated(By.id("password"))
     );

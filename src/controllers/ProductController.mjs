@@ -136,6 +136,7 @@ export const addProduct = async (req, res) => {
       product_quantity: req?.body?.productQuantity,
       created_time: getDateTimeNowLocalISOString(),
     };
+    // console.log(body)
     //* Validate request body
     const validationResult = productValidations.addProductValidator(body);
     if (validationResult) {
@@ -168,7 +169,7 @@ export const addProduct = async (req, res) => {
     
     //* Check if seller_id exists
     let userresult = await userDao.getUserBySellerId(userModel)
-    if (result.length < 1) {
+    if (userresult.length < 1) {
       res.json({
         message: "Seller does not exist!",
         data: userresult,
@@ -219,7 +220,7 @@ export const deleteProduct = async (req, res) => {
     const model = new Product(body?.id, body?.seller_id);
 
     //* Check if product already exists
-    result = await productDao.getProductById(model)
+    result = await productDao.getProduct(model)
     if (result.length < 1) {
       res.json({
         message: "Product does not exist!",
@@ -230,7 +231,7 @@ export const deleteProduct = async (req, res) => {
     }
 
     result = await productDao.deleteProduct(model)
-    logger.info(`Seller user [${body?.seller_id}] has successfully deleted product [${result[0].product_name}].`)
+    logger.info(`Seller user [${body?.seller_id}] has successfully deleted product [${result[0]?.product_name}].`)
     res.json({
       message: "Deleted product successfully!",
       data: result,
