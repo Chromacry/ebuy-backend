@@ -16,8 +16,7 @@ services:
         - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
         - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
         - PM2_SECRET_KEY=${PM2_SECRET_KEY}
-
-    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:latest
+    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:v5
     restart: always
     ports:
       - "8080:8080"
@@ -35,7 +34,7 @@ services:
       - SERVER_PORT=${SERVER_PORT}
       - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
       - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
-      - PM2_SECRET_KEY=${PM2_SECRET_KEY}     
+      - PM2_SECRET_KEY=${PM2_SECRET_KEY}
 
     volumes:
       - ./:/projectx-backend
