@@ -23,7 +23,7 @@ resource "azurerm_kubernetes_cluster" "dvopsAKSCluster" {
 		vm_size = "Standard_DS2_v2"
 	}
 	service_principal {
-		client_id = ""
-		client_secret = ""
+		client_id = "2bf60ab1-9f44-440c-af2f-0be0a8a90c7a"
+		client_secret = "RLD8Q~xZyOWVzpJGKzibwDr21DAloLZx4vrl2cOx"
 	}
 }
