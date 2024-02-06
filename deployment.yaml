@@ -14,7 +14,7 @@ spec: # defines the desired state of the Deployment.
     spec: # specifies the container(s) to run
       containers:
       - name: projectx-backend-container
-        image: onyxxx/projectx-backend-init-img:v6
+        image: onyxxx/projectx-backend-init-img:latest
         imagePullPolicy: "Always"
         ports:
         - containerPort: 8080 # specifies the port that the application listens on
