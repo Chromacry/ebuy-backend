@@ -23,8 +23,7 @@ app.use(express.json({
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const publicPath = path.join(__dirname, '../public');
-app.use(express.static(publicPath))
+
 app.use(cors({
   "origin": "*",
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -33,11 +32,6 @@ app.use(cors({
 }))
 app.use(express.urlencoded({ extended: true}))
 app.use(expressStatusMonitor());
-
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'))
-})
 
 class MyStream {
   write(text) {
