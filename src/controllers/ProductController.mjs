@@ -90,7 +90,7 @@ export const getProduct = async (req, res) => {
       return;
     }
     const model = new Product(body?.id);
-    result = await productDao.getProductById(model);
+    result = await productDao.getProduct(model);
     if (result.length < 1) {
       res.json({
         message: "Product does not exist!",
@@ -286,7 +286,7 @@ export const updateProduct = async (req, res) => {
     );
 
     //* Check if product Id exist
-    result = await productDao.getProductById(model)
+    result = await productDao.getProduct(model)
     if (result.length < 1) {
       res.json({
         message: "Product does not exist!",
