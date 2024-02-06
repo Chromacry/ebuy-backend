@@ -16,8 +16,7 @@ services:
         - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
         - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
         - PM2_SECRET_KEY=${PM2_SECRET_KEY}
-        - TF_VAR_azure_app_id=${azure_app_id}
-        - TF_VAR_azure_password=${azure_password}
+
     image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:latest
     restart: always
     ports:
@@ -36,9 +35,7 @@ services:
       - SERVER_PORT=${SERVER_PORT}
       - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
       - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
-      - PM2_SECRET_KEY=${PM2_SECRET_KEY}
-      - TF_VAR_azure_app_id=${TF_VAR_azure_app_id}
-      - TF_VAR_azure_password={TF_VAR_azure_password}      
+      - PM2_SECRET_KEY=${PM2_SECRET_KEY}     
 
     volumes:
       - ./:/projectx-backend
