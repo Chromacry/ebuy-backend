@@ -4,12 +4,38 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:latest
+      args:
+        - DATABASE_HOST=${DATABASE_HOST}
+        - DATABASE_USER=${DATABASE_USER}
+        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+        - DATABASE_PORT=${DATABASE_PORT}
+        - DATABASE_SCHEMA=${DATABASE_SCHEMA}
+        - JWT_SECRET=${JWT_SECRET}
+        - JWT_EXPIRES=${JWT_EXPIRES}
+        - SERVER_PORT=${SERVER_PORT}
+        - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
+        - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
+        - PM2_SECRET_KEY=${PM2_SECRET_KEY}
+    image: ${DOCKER_IMAGE_REPO}/projectx-backend-init-img:v5
     restart: always
     ports:
       - "8080:8080"
+      - "80:80"
+      - "443:443"
     environment:
-      - PORT=8080
+      - PORT=${PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_SCHEMA=${DATABASE_SCHEMA}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES=${JWT_EXPIRES}
+      - SERVER_PORT=${SERVER_PORT}
+      - DOCKER_IMAGE_REPO=${DOCKER_IMAGE_REPO}
+      - PM2_PUBLIC_KEY=${PM2_PUBLIC_KEY}
+      - PM2_SECRET_KEY=${PM2_SECRET_KEY}
+
     volumes:
       - ./:/projectx-backend
       - ./projectx-backend/node_modules

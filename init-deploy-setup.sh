@@ -3,10 +3,10 @@
 #* Use this command to get ID, Run the command below inside ur cmd/powershell
 #*$ az account show --query "id" --output tsv
 
-export azure_account_id="Your ID"
+export azure_account_id=""
 export kube_config_filedrive="c" #* Default is c drive. Specify if needed. 
 export your_windows_account_username="" #* Enter your windows account username
-export docker_username="Your username" #* Docker account username
+export docker_username="" #* Docker account username
 
 
 docker login

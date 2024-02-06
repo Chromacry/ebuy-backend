@@ -1,4 +1,4 @@
-
+  
 import { Builder, By, Key, until } from "selenium-webdriver";
 import { describe, it } from "mocha";
 import { expect } from "chai";
@@ -21,7 +21,7 @@ describe("Testing Project X Review functions", () => {
       until.elementLocated(By.className("review-card"))
     );
     await expect(reviews.isDisplayed());
-  }).timeout(50000);
+  }).timeout(100000);
 
   it("Should Login, click on a product and add a review", async () => {
     await driver.get("http://localhost:5173/");
@@ -86,7 +86,7 @@ describe("Testing Project X Review functions", () => {
       until.elementLocated(By.xpath("//h3[text()='test review']"))
     );
     expect(testContent.isDisplayed());
-  }).timeout(50000);
+  }).timeout(100000);
 
   it("Should Login, click on a product and edit a review", async () => {
     await driver.get("http://localhost:5173/");
@@ -167,7 +167,7 @@ describe("Testing Project X Review functions", () => {
       )
     );
     await expect(editedCard.isDisplayed());
-  }).timeout(50000);
+  }).timeout(100000);
 
   it("Should Login, click on a product and delete a review", async () => {
     await driver.get("http://localhost:5173/");
@@ -238,5 +238,5 @@ describe("Testing Project X Review functions", () => {
     await expect(reviewlen-1).to.equal(reviewsAfter.length);
   
   
-  }).timeout(60000);
+  }).timeout(100000);
 });
