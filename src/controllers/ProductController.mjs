@@ -11,6 +11,7 @@ const userDao = new UserDao();
 const productDao = new ProductDao();
 const productValidations = new ProductValidations();
 
+
 export const getAllProducts = async (req, res) => {
   try {
     let result;

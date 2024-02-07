@@ -5,6 +5,7 @@ import { ReviewValidations } from "../utils/ReviewBodyValidationUtil.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
 import jwt from "jsonwebtoken";
 const reviewDao = new ReviewDao();
+const productDao = new ProductDao();
 const reviewValidations = new ReviewValidations();
 export const addReview = async (req, res) => {
   try {
@@ -67,7 +68,7 @@ export const getProductReviews = async (req, res) => {
     }
     const model = new Review();
     model.setProductId(body.product_id);
-    result = await reviewDao.getProductById(model);
+    result = await productDao.getProductById(model);
     console.log(result);
     res.json({
       message: "Review retrieved successfully!",
