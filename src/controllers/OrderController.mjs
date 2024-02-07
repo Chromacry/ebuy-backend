@@ -66,7 +66,7 @@ export const addOrder = async (req, res) => {
       result = await orderDao.addOrder(model);
     }
     res.json({
-      message: "Added TestOrder successfully!",
+      message: "Added TestTestOrder successfully!",
       data: { result, tracking_number }, 
       status: STATUS_CODES.SUCCESS_CODE,
     });
