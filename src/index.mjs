@@ -63,5 +63,8 @@ app.listen(port,'0.0.0.0', () => {
 
 // Define a basic route
 app.use("/api", BaseRoute);
+app.get("/", (request, response) => {
+  response.send("Test backend deployment")
+})
 
 
