@@ -68,7 +68,7 @@ export const getProductReviews = async (req, res) => {
     const model = new Review();
     model.setProductId(body.product_id);
     result = await reviewDao.getProductById(model);
-
+    console.log(result);
     res.json({
       message: "Review retrieved successfully!",
       data: result,
