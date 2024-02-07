@@ -108,6 +108,14 @@ describe("Testing Project X Product Table Page", function(){
       By.xpath('.//li[@data-testid="ProductsTest"]')
     );
     adminProduct.click();
+    
+    // click on the admin product icon
+    const toastElementGet = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElementGet.getText()).equal("Successfully retrieved all products!")
+
     // check whether got find the product text field and click
     const productInput = await driver.wait(
       until.elementLocated(By.id("product_name"))
@@ -148,6 +156,12 @@ describe("Testing Project X Product Table Page", function(){
       until.elementLocated(By.className("memberTable"))
     );
     expect(headersElement.isDisplayed());
+
+    const toastElement = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElement.getText()).equal("Added product successfully!")
   });
 
   it("Should Login, click on a product and edit product details", async () => {
@@ -192,9 +206,16 @@ describe("Testing Project X Product Table Page", function(){
     );
     adminProduct.click();
 
+
+    const toastElementGet = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElementGet.getText()).equal("Successfully retrieved all products!")
+    
     // Click on the "Edit" button for the product with the name "Har Har20"
     const productRowHarHar20 = await driver.wait(
-      until.elementLocated(By.xpath(`//td[text()='Har Har20']/ancestor::tr`))
+      until.elementLocated(By.xpath(`//td[text()='Hat']/ancestor::tr`))
     );
     // click on edit button
     const editButtonHarHar20 = await productRowHarHar20.findElement(
@@ -208,19 +229,34 @@ describe("Testing Project X Product Table Page", function(){
     const initialProductName = await productNameBeforeEdit.getAttribute(
       "value"
     );
-    expect(initialProductName).toBe("Har Har20");
+    expect(initialProductName).equal("Hat");
 
     // Update the product description
-    const productDescriptionInput = await driver.findElement(
-      By.xpath('.//textarea[@data-testid="ProductDescriptionTest"]')
+    const productDescriptionInput = await driver.wait(
+      until.elementLocated(
+      By.xpath('.//textarea[@data-testid="ProductDescriptionTest"]'))
     );
     await productDescriptionInput.clear();
     await productDescriptionInput.sendKeys("Updated Product Description");
+
+    const fileInput = await driver.wait(
+      until.elementLocated(By.xpath('.//input[@data-testid="product_image_edit"]'))
+    );
+    // send filepath
+    const imagePath = "D:\\TP_3YrCourse\\TP_Yr2\\TP_Sem2\\TP_DEVOPS\\laptop.webp";
+    await fileInput.sendKeys(imagePath);
+
     // Submit the form to save changes
     const saveChangesButton = await driver.findElement(
       By.xpath('.//button[text()="Save Changes"]')
     );
     await saveChangesButton.click();
+
+    const toastElement = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElement.getText()).equal("Updated product successfully!")
   });
 
   it("Should Login, click on a product and delete a product", async () => {
@@ -270,6 +306,11 @@ describe("Testing Project X Product Table Page", function(){
     );
     await expect(headersElement.isDisplayed());
 
+    const toastElementGet = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElementGet.getText()).equal("Successfully retrieved all products!")
     // await expect(headersElement.every(Boolean)).to.be.true;
     // let reviewlen = reviews.length;
     // expect the row to be displayed
@@ -286,5 +327,11 @@ describe("Testing Project X Product Table Page", function(){
     const alert = await driver.switchTo().alert();
     // Accept (click OK)
     await alert.accept();
+
+    const toastElement = await driver.wait(
+      until.elementLocated(By.css('.toast-message')),
+      10000
+    );
+    expect(await toastElement.getText()).equal("Successfully retrieved all products!")
   });
 });
