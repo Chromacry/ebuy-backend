@@ -1,5 +1,6 @@
 import { STATUS_CODES } from "../constants/GlobalConstants.mjs";
 import { ReviewDao } from "../dao/ReviewDao.mjs";
+import { ProductDao } from "../dao/ProductDao.mjs";
 import { Review } from "../models/ReviewModel.mjs";
 import { ReviewValidations } from "../utils/ReviewBodyValidationUtil.mjs";
 import { getDateTimeNowLocalISOString } from "../utils/DateTimeUtil.mjs";
@@ -69,7 +70,6 @@ export const getProductReviews = async (req, res) => {
     const model = new Review();
     model.setProductId(body.product_id);
     result = await productDao.getProductById(model);
-    console.log(result);
     res.json({
       message: "Review retrieved successfully!",
       data: result,

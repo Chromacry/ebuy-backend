@@ -120,7 +120,7 @@ export class ProductDao {
 
       dbConnection.query(
         sql,
-        [model.getId()],
+        [model.getProductId()],
         (error, results) => {
           if (error) {
             reject(error);
